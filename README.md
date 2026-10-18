@@ -1,5 +1,4 @@
 # Pulo
 AI Software Engineering 
-Vibe Coding 
-# Good Boy company 
+Vibe Coding  Good Boy company 
 
