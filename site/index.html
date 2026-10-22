@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pulo – Server-Check für den Mac, mit Buddy</title>
+  <meta name="description" content="Pulo prüft, ob dein lokaler Server läuft, und zeigt dir den Status in Klartext – mit einem freundlichen 3D-Buddy. Die Server-Diagnose für macOS.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f5f7f8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b1114" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Pulo – Server-Check für den Mac, mit Buddy">
+  <meta property="og:description" content="Pulo prüft, ob dein Server läuft. Ein süßer Buddy zeigt es dir.">
+  <meta property="og:image" content="https://jade-seahorse-365504.netlify.app/og-image.png">
+  <meta property="og:url" content="https://jade-seahorse-365504.netlify.app/">
+  <meta property="og:locale" content="de_DE">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <style>
+    /* ============ Design-Tokens ============
+       BORAN: Hauptfarbe von Pulo hier eintragen (--accent / --buddy). Türkis ist Platzhalter. */
+    :root {
+      --buddy: #14a3a8;
+      --accent: #0a7a80;          /* Text/Buttons auf Hell: AA-Kontrast */
+      --accent-ink: #ffffff;
+      --accent-soft: rgba(20, 163, 168, .12);
+      --bg: #f5f7f8;
+      --bg-elev: #ffffff;
+      --text: #10181c;
+      --text-2: #4a5961;
+      --line: rgba(16, 24, 28, .09);
+      --glass: rgba(255, 255, 255, .72);
+      --shadow: 0 1px 2px rgba(16,24,28,.04), 0 12px 40px rgba(16,24,28,.08);
+      --ok: #1f9d55; --warn: #b7791f; --bad: #d64545;
+      --radius: 22px;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+      --ease: cubic-bezier(.22, .8, .25, 1);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --accent: #4fd6d9;
+        --accent-ink: #062326;
+        --accent-soft: rgba(79, 214, 217, .12);
+        --bg: #0b1114;
+        --bg-elev: #131b1f;
+        --text: #eef3f4;
+        --text-2: #a3b1b7;
+        --line: rgba(255, 255, 255, .09);
+        --glass: rgba(19, 27, 31, .66);
+        --shadow: 0 1px 2px rgba(0,0,0,.3), 0 16px 48px rgba(0,0,0,.35);
+        --ok: #4ade80; --warn: #fbbf24; --bad: #f87171;
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0; font-family: var(--font); background: var(--bg); color: var(--text);
+      line-height: 1.55; font-size: 17px; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+    }
+    img, svg, video { display: block; max-width: 100%; }
+    a { color: var(--accent); }
+    h1, h2, h3 { line-height: 1.08; letter-spacing: -.025em; margin: 0 0 .5em; font-weight: 700; }
+    h1 { font-size: clamp(2.6rem, 7vw, 4.8rem); }
+    h2 { font-size: clamp(2rem, 4.6vw, 3.2rem); }
+    h3 { font-size: 1.25rem; letter-spacing: -.01em; }
+    p { margin: 0 0 1em; }
+    .wrap { width: min(1120px, 100% - 2.5rem); margin-inline: auto; }
+    .eyebrow { color: var(--accent); font-weight: 600; font-size: .95rem; margin-bottom: .6rem; letter-spacing: .01em; }
+    .lead { font-size: clamp(1.1rem, 2.2vw, 1.35rem); color: var(--text-2); max-width: 38ch; }
+    .center { text-align: center; }
+    .center .lead { margin-inline: auto; }
+    section { padding: clamp(4.5rem, 11vw, 8.5rem) 0; scroll-margin-top: 64px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 10px; }
+    .skip { position: absolute; left: 1rem; top: -4rem; background: var(--bg-elev); padding: .7rem 1rem; border-radius: 12px; z-index: 100; box-shadow: var(--shadow); }
+    .skip:focus { top: 1rem; }
+
+    /* ============ Buttons ============ */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+      min-height: 48px; padding: .75rem 1.4rem; border-radius: 999px; font: inherit; font-weight: 600;
+      text-decoration: none; cursor: pointer; border: 1px solid transparent;
+      transition: transform .25s var(--ease), background-color .25s, box-shadow .25s;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: var(--accent); color: var(--accent-ink); box-shadow: 0 6px 20px -6px color-mix(in srgb, var(--accent) 60%, transparent); }
+    .btn-ghost { background: var(--accent-soft); color: var(--accent); }
+    .btn-small { min-height: 38px; padding: .45rem 1rem; font-size: .92rem; }
+    .btns { display: flex; flex-wrap: wrap; gap: .8rem; }
+    .center .btns { justify-content: center; }
+
+    /* ============ Navigation ============ */
+    .nav {
+      position: sticky; top: 0; z-index: 50; background: var(--glass);
+      -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav .wrap { display: flex; align-items: center; gap: 1rem; height: 60px; }
+    .logo { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1.2rem; color: var(--text); text-decoration: none; letter-spacing: -.02em; }
+    .logo img { width: 28px; height: 28px; }
+    .nav ul { display: none; list-style: none; margin: 0 0 0 auto; padding: 0; gap: 1.8rem; }
+    .nav ul a { color: var(--text-2); text-decoration: none; font-size: .95rem; }
+    .nav ul a:hover { color: var(--text); }
+    .nav .btn { margin-left: auto; }
+    @media (min-width: 720px) { .nav ul { display: flex; } .nav .btn { margin-left: 1.2rem; } }
+
+    /* ============ Hero ============ */
+    .hero { padding-top: clamp(3rem, 8vw, 6rem); position: relative; overflow: hidden; }
+    .hero .wrap { display: grid; gap: 2.5rem; align-items: center; }
+    @media (min-width: 900px) { .hero .wrap { grid-template-columns: 1.1fr .9fr; } }
+    .hero h1 span { color: var(--accent); }
+    .hero .btns { margin-top: 1.8rem; }
+    .hero-note { margin-top: 1rem; font-size: .9rem; color: var(--text-2); }
+    .glow {
+      position: absolute; inset: auto; width: 60vmax; height: 60vmax; border-radius: 50%; pointer-events: none; z-index: -1;
+      background: radial-gradient(circle, color-mix(in srgb, var(--buddy) 22%, transparent), transparent 65%);
+      right: -20vmax; top: -15vmax; will-change: transform;
+    }
+    .hero-stage { position: relative; display: grid; place-items: center; }
+    .status-card {
+      position: absolute; left: 0; bottom: 8%; display: flex; align-items: center; gap: .6rem;
+      padding: .7rem 1rem; border-radius: 16px; background: var(--glass); border: 1px solid var(--line);
+      -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: var(--shadow); font-size: .92rem;
+    }
+    .status-card code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .85rem; color: var(--text-2); }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 20%, transparent); flex: none; }
+    .dot.warn { background: var(--warn); box-shadow: 0 0 0 4px color-mix(in srgb, var(--warn) 20%, transparent); }
+    .dot.bad { background: var(--bad); box-shadow: 0 0 0 4px color-mix(in srgb, var(--bad) 20%, transparent); }
+
+    /* ============ Buddy ============ */
+    .buddy {
+      width: min(420px, 82vw); aspect-ratio: 1; padding: 0; border: 0; background: none; cursor: pointer;
+      -webkit-tap-highlight-color: transparent; border-radius: 40%;
+    }
+    .buddy svg { width: 100%; height: 100%; overflow: visible; }
+    .buddy .body-g { transform-origin: 100px 178px; transform-box: view-box; }
+    .buddy .eye { transform-box: fill-box; transform-origin: center; transition: transform .09s ease-in; }
+    .buddy.blink .eye { transform: scaleY(.08); }
+    .buddy .pupil { transition: transform .12s linear; }
+    .buddy .brow { opacity: 0; transition: opacity .3s, transform .3s; transform-box: fill-box; transform-origin: center; }
+    .buddy[data-mood="worried"] .brow, .buddy[data-mood="sad"] .brow { opacity: 1; }
+    .buddy[data-mood="sad"] .brow-l { transform: rotate(14deg) translateY(-2px); }
+    .buddy[data-mood="sad"] .brow-r { transform: rotate(-14deg) translateY(-2px); }
+    .buddy[data-mood="worried"] .brow-l { transform: rotate(-8deg); }
+    .buddy[data-mood="worried"] .brow-r { transform: rotate(8deg); }
+    .buddy .cheek { transition: opacity .3s; }
+    .buddy[data-mood="sad"] .cheek { opacity: .15; }
+    .buddy .mouth { transition: d .3s var(--ease); }
+    .buddy .tear { opacity: 0; transition: opacity .4s; }
+    .buddy[data-mood="sad"] .tear { opacity: .9; }
+    .buddy .lamp { transition: fill .4s; }
+    .buddy.boop .body-g { animation: boop .55s var(--ease); }
+    @keyframes boop {
+      0% { transform: scale(1, 1); } 30% { transform: scale(1.08, .9); } 60% { transform: scale(.95, 1.06); } 100% { transform: scale(1, 1); }
+    }
+    .buddy.idle .body-g { animation: idle 5s ease-in-out infinite; }
+    @keyframes idle { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.01, .995); } }
+    .buddy.idle.boop .body-g { animation: boop .55s var(--ease); }
+
+    /* ============ Video ============ */
+    .video-frame {
+      position: relative; margin: 3rem auto 0; max-width: 1000px; aspect-ratio: 16 / 9; border-radius: calc(var(--radius) + 6px);
+      overflow: hidden; background: #0c1f26; box-shadow: var(--shadow); border: 1px solid var(--line);
+    }
+    .video-frame video { width: 100%; height: 100%; object-fit: cover; }
+    .play {
+      position: absolute; inset: 0; display: grid; place-items: center; border: 0; padding: 0; cursor: pointer;
+      background: linear-gradient(to top, rgba(0,0,0,.25), transparent 50%);
+    }
+    .play span {
+      width: 88px; height: 88px; border-radius: 50%; display: grid; place-items: center;
+      background: rgba(255,255,255,.22); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,.35); transition: transform .3s var(--ease), background .3s;
+    }
+    .play:hover span, .play:focus-visible span { transform: scale(1.06); background: rgba(255,255,255,.32); }
+    .play svg { width: 30px; height: 30px; margin-left: 5px; fill: #fff; }
+    .play[hidden] { display: none; }
+    .video-placeholder {
+      position: absolute; inset: 0; display: grid; place-items: end center; padding: 1.4rem; text-align: center;
+      background: url(media/poster.svg) center / cover no-repeat; color: #e8f6f6;
+    }
+    .video-placeholder p { background: rgba(0,0,0,.45); padding: .5rem 1rem; border-radius: 999px; font-size: .92rem; margin: 0; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+    .video-placeholder[hidden] { display: none; }
+
+    /* ============ Karten ============ */
+    .grid { display: grid; gap: 1.1rem; margin-top: 3rem; }
+    @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1000px) { .grid.four { grid-template-columns: repeat(4, 1fr); } }
+    .card {
+      background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.7rem;
+      box-shadow: var(--shadow); transition: transform .4s var(--ease);
+    }
+    .card:hover { transform: translateY(-3px); }
+    .card p { color: var(--text-2); margin: 0; font-size: .98rem; }
+    .icon { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); margin-bottom: 1.1rem; }
+    .icon svg { width: 24px; height: 24px; }
+
+    /* ============ Buddy-Demo ============ */
+    .demo {
+      display: grid; gap: 2rem; align-items: center; margin-top: 3rem; padding: clamp(1.5rem, 4vw, 3rem);
+      background: var(--bg-elev); border: 1px solid var(--line); border-radius: calc(var(--radius) + 8px); box-shadow: var(--shadow);
+    }
+    @media (min-width: 860px) { .demo { grid-template-columns: 1fr 1fr; } }
+    .demo .buddy { width: min(340px, 72vw); margin-inline: auto; }
+    .control + .control { margin-top: 1.8rem; }
+    .control-label { font-weight: 600; margin-bottom: .7rem; display: block; }
+    fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+    legend { padding: 0; }
+    .swatches { display: flex; flex-wrap: wrap; gap: .7rem; align-items: center; }
+    .swatch { position: relative; }
+    .swatch input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+    .swatch span {
+      display: block; width: 40px; height: 40px; border-radius: 50%; background: var(--c);
+      box-shadow: inset 0 -4px 8px rgba(0,0,0,.18), inset 0 3px 6px rgba(255,255,255,.35); transition: transform .2s var(--ease);
+    }
+    .swatch input:checked + span { outline: 3px solid var(--text); outline-offset: 3px; }
+    .swatch input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 3px; }
+    .swatch:hover span { transform: scale(1.08); }
+    .custom-color { display: inline-flex; align-items: center; gap: .5rem; font-size: .92rem; color: var(--text-2); }
+    .custom-color input { width: 40px; height: 40px; border: 0; padding: 0; background: none; border-radius: 50%; cursor: pointer; }
+    .seg { display: inline-flex; flex-wrap: wrap; gap: .3rem; padding: .3rem; border-radius: 999px; background: var(--accent-soft); }
+    .seg button {
+      display: inline-flex; align-items: center; gap: .45rem; border: 0; background: none; font: inherit; font-size: .95rem; font-weight: 600;
+      color: var(--text-2); padding: .55rem 1rem; border-radius: 999px; cursor: pointer; min-height: 40px; transition: background .25s, color .25s;
+    }
+    .seg button[aria-pressed="true"] { background: var(--bg-elev); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    .status-line { margin-top: 1.2rem; display: flex; align-items: center; gap: .6rem; color: var(--text-2); min-height: 1.6em; }
+    .hint { font-size: .9rem; color: var(--text-2); margin-top: 1.4rem; }
+
+    /* ============ Preise ============ */
+    .pricing { display: grid; gap: 1.1rem; margin-top: 3rem; }
+    @media (min-width: 760px) { .pricing { grid-template-columns: 1fr 1fr; } }
+    .plan { display: flex; flex-direction: column; }
+    .plan.pro { border: 2px solid var(--accent); }
+    .plan .price { font-size: 2rem; font-weight: 700; letter-spacing: -.02em; margin: .3rem 0 1.4rem; }
+    .plan .price small { font-size: .95rem; font-weight: 500; color: var(--text-2); }
+    .plan .btn { margin-top: auto; }
+    .badge { display: inline-block; font-size: .78rem; font-weight: 700; padding: .25rem .65rem; border-radius: 999px; background: var(--accent); color: var(--accent-ink); margin-left: .4rem; vertical-align: middle; }
+    .table-wrap { margin-top: 2.5rem; overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-elev); }
+    table { width: 100%; border-collapse: collapse; min-width: 460px; }
+    caption { text-align: left; padding: 1.2rem 1.4rem 0; font-weight: 600; }
+    th, td { padding: .95rem 1.4rem; text-align: left; border-bottom: 1px solid var(--line); }
+    tbody tr:last-child > * { border-bottom: 0; }
+    thead th { font-size: .9rem; color: var(--text-2); font-weight: 600; }
+    td:not(:first-child), thead th:not(:first-child) { text-align: center; width: 22%; }
+    .yes { color: var(--accent); font-weight: 700; }
+    .no { color: var(--text-2); }
+
+    /* ============ Roadmap ============ */
+    .roadmap { list-style: none; padding: 0; margin: 3rem 0 0; display: grid; gap: .8rem; }
+    @media (min-width: 640px) { .roadmap { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1000px) { .roadmap { grid-template-columns: repeat(3, 1fr); } }
+    .roadmap li { display: flex; gap: .9rem; align-items: flex-start; padding: 1.1rem 1.3rem; border-radius: 18px; background: var(--bg-elev); border: 1px solid var(--line); }
+    .roadmap li::before { content: ""; flex: none; width: 10px; height: 10px; margin-top: .5em; border-radius: 50%; border: 2px solid var(--accent); }
+    .roadmap strong { display: block; }
+    .roadmap span { color: var(--text-2); font-size: .95rem; }
+
+    /* ============ FAQ ============ */
+    .faq { max-width: 760px; margin: 3rem auto 0; }
+    details { border-bottom: 1px solid var(--line); }
+    summary { cursor: pointer; list-style: none; padding: 1.3rem 2.2rem 1.3rem 0; font-weight: 600; font-size: 1.1rem; position: relative; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; position: absolute; right: .2rem; top: 50%; transform: translateY(-50%); font-size: 1.5rem; font-weight: 400; color: var(--accent); transition: transform .3s var(--ease); }
+    details[open] summary::after { transform: translateY(-50%) rotate(45deg); }
+    details p { color: var(--text-2); padding-bottom: 1.2rem; margin: 0; }
+
+    /* ============ CTA & Footer ============ */
+    .cta-final { padding-bottom: 6rem; }
+    footer { border-top: 1px solid var(--line); padding: 2.5rem 0 3rem; font-size: .92rem; color: var(--text-2); }
+    footer .wrap { display: flex; flex-wrap: wrap; gap: 1.2rem 2rem; align-items: center; justify-content: space-between; }
+    footer ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1.4rem; }
+    footer a { color: var(--text-2); text-decoration: none; }
+    footer a:hover { color: var(--text); text-decoration: underline; }
+
+    /* ============ Scroll-Reveal ============ */
+    .js .reveal { opacity: 0; transform: translateY(24px); transition: opacity .9s var(--ease), transform .9s var(--ease); }
+    .js .reveal.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+      .js .reveal { opacity: 1; transform: none; }
+      .glow { transform: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Zum Inhalt springen</a>
+
+  <!-- Gemeinsame Verläufe für alle Buddys (Farbe folgt --buddy) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <radialGradient id="pulo-body" cx="36%" cy="28%" r="78%">
+        <stop offset="0" style="stop-color: color-mix(in oklab, var(--buddy) 45%, white)"/>
+        <stop offset=".55" style="stop-color: var(--buddy)"/>
+        <stop offset="1" style="stop-color: color-mix(in oklab, var(--buddy) 62%, black)"/>
+      </radialGradient>
+      <radialGradient id="pulo-shadow" cx="50%" cy="50%" r="50%">
+        <stop offset="0" stop-color="#000" stop-opacity=".28"/>
+        <stop offset="1" stop-color="#000" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+  </svg>
+
+  <!-- Buddy-Vorlage: wird per JS in jedes [data-buddy] geklont -->
+  <template id="buddy-tpl">
+    <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+      <ellipse cx="100" cy="184" rx="62" ry="9" fill="url(#pulo-shadow)"/>
+      <g class="body-g">
+        <path d="M100 32 C104 22 104 16 100 12" style="stroke: color-mix(in oklab, var(--buddy) 62%, black)" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <circle class="lamp" cx="100" cy="10" r="6.5" style="fill: var(--ok)"/>
+        <path d="M100 30 C150 30 172 70 172 112 C172 156 140 178 100 178 C60 178 28 156 28 112 C28 70 50 30 100 30Z" fill="url(#pulo-body)"/>
+        <ellipse cx="76" cy="56" rx="26" ry="13" fill="#fff" opacity=".28" transform="rotate(-18 76 56)"/>
+        <ellipse class="cheek" cx="58" cy="124" rx="11" ry="6.5" fill="#ff8fa3" opacity=".45"/>
+        <ellipse class="cheek" cx="142" cy="124" rx="11" ry="6.5" fill="#ff8fa3" opacity=".45"/>
+        <path class="brow brow-l" d="M66 72 L90 72" stroke="#10202a" stroke-width="4" stroke-linecap="round"/>
+        <path class="brow brow-r" d="M110 72 L134 72" stroke="#10202a" stroke-width="4" stroke-linecap="round"/>
+        <g class="eye">
+          <ellipse cx="78" cy="98" rx="14" ry="17" fill="#fff"/>
+          <g class="pupil"><circle cx="78" cy="100" r="8.5" fill="#10202a"/><circle cx="81" cy="96" r="2.6" fill="#fff"/></g>
+        </g>
+        <g class="eye">
+          <ellipse cx="122" cy="98" rx="14" ry="17" fill="#fff"/>
+          <g class="pupil"><circle cx="122" cy="100" r="8.5" fill="#10202a"/><circle cx="125" cy="96" r="2.6" fill="#fff"/></g>
+        </g>
+        <path class="tear" d="M66 116 q-4 8 0 11 q4 -3 0 -11z" fill="#9bdcff"/>
+        <path class="mouth" d="M84 132 Q100 148 116 132" stroke="#10202a" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </template>
+
+  <header class="nav">
+    <nav class="wrap" aria-label="Hauptnavigation">
+      <a class="logo" href="#top" aria-label="Pulo – zum Seitenanfang"><img src="favicon.svg" alt="" width="28" height="28">Pulo</a>
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#video">Video</a></li>
+        <li><a href="#preise">Preise</a></li>
+      </ul>
+      <a class="btn btn-primary btn-small" href="#preise" data-download>Download</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- ============ Hero ============ -->
+    <section class="hero" id="top">
+      <div class="glow" data-parallax=".18" aria-hidden="true"></div>
+      <div class="wrap">
+        <div class="reveal">
+          <p class="eyebrow">Für macOS · früher DevDock</p>
+          <!-- BORAN: Slogan aus dem Video hier als Headline einsetzen, falls gewünscht -->
+          <h1>Läuft dein Server? <span>Pulo weiß es.</span></h1>
+          <p class="lead">Pulo prüft, ob dein lokaler Server erreichbar ist – und sagt es dir in Klartext. Mit einem kleinen Buddy, der sich mitfreut.</p>
+          <div class="btns">
+            <a class="btn btn-primary" href="#preise" data-download>
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3a1 1 0 0 1 1 1v9.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.4l3.3 3.3V4a1 1 0 0 1 1-1zM5 19h14a1 1 0 1 1 0 2H5a1 1 0 1 1 0-2z"/></svg>
+              Pulo laden
+            </a>
+            <a class="btn btn-ghost" href="#video" data-watch>
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5z"/></svg>
+              Video ansehen
+            </a>
+          </div>
+          <p class="hero-note">Kostenlos starten. Pro, wenn du mehr willst.</p>
+        </div>
+        <div class="hero-stage reveal">
+          <button class="buddy" type="button" data-buddy data-mood="happy" aria-label="Pulo, das Maskottchen. Antippen zum Anstupsen."></button>
+          <div class="status-card" aria-hidden="true">
+            <span class="dot"></span>
+            <span><strong>Online</strong> <code>localhost</code></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Video ============ -->
+    <section id="video" aria-labelledby="video-h">
+      <div class="wrap center reveal">
+        <p class="eyebrow">Werbevideo</p>
+        <h2 id="video-h">Pulo in Bewegung.</h2>
+        <p class="lead">Lehn dich zurück – der Buddy erklärt den Rest.</p>
+        <div class="video-frame">
+          <!-- VIDEO: MP4 nach site/media/pulo-werbevideo.mp4 legen – oder die src-Zeile unten durch eine URL ersetzen.
+               BORAN: Länge und Slogan aus dem Video ergänzen. Untertitel in media/pulo-untertitel-de.vtt pflegen. -->
+          <video id="promo" controls playsinline preload="metadata" poster="media/poster.svg" aria-describedby="video-h">
+            <source src="media/pulo-werbevideo.mp4" type="video/mp4">
+            <track kind="captions" srclang="de" label="Deutsch" src="media/pulo-untertitel-de.vtt" default>
+            Dein Browser kann dieses Video nicht abspielen.
+          </video>
+          <button class="play" type="button" id="play-btn" aria-label="Werbevideo abspielen">
+            <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5v15a1 1 0 0 0 1.5.86l13-7.5a1 1 0 0 0 0-1.72l-13-7.5A1 1 0 0 0 6 4.5z"/></svg></span>
+          </button>
+          <div class="video-placeholder" id="video-placeholder" hidden>
+            <p>Das Video ist gleich da. Pulo poliert noch die Antenne.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Features ============ -->
+    <section id="features" aria-labelledby="features-h">
+      <div class="wrap">
+        <div class="center reveal">
+          <p class="eyebrow">Features</p>
+          <h2 id="features-h">Diagnose ohne Terminal-Gefrickel.</h2>
+          <p class="lead">Alles, was du wissen musst, auf einen Blick. Den Rest erledigt Pulo.</p>
+        </div>
+        <div class="grid four">
+          <article class="card reveal">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <h3>Server-Check</h3>
+            <p>Ist dein lokaler Server erreichbar? Pulo sagt es dir – grün, gelb oder rot, in ganzen Sätzen.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
+            <h3>Dauerüberwachung</h3>
+            <p>Pulo behält deinen Server im Auge, während du in Ruhe weiterarbeitest.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/><circle cx="17" cy="6.5" r=".6" fill="currentColor"/></svg></div>
+            <h3>Menüleiste</h3>
+            <p>Der Status sitzt oben in der Menüleiste. Ein Blick genügt – kein Fenster nötig.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><circle cx="9.5" cy="12" r="1" fill="currentColor"/><circle cx="14.5" cy="12" r="1" fill="currentColor"/><path d="M9.5 16c1.4 1 3.6 1 5 0M12 5V2"/></svg></div>
+            <h3>Dein Buddy</h3>
+            <p>Pulo blinzelt, schaut dir nach, reagiert aufs Antippen – und zeigt dir mit seiner Mimik, wie es deinem Server geht.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Buddy-Demo ============ -->
+    <section id="buddy" aria-labelledby="buddy-h">
+      <div class="wrap">
+        <div class="center reveal">
+          <p class="eyebrow">Lerne Pulo kennen</p>
+          <h2 id="buddy-h">Probier ihn aus.</h2>
+          <p class="lead">Beweg die Maus, tipp ihn an, gib ihm eine neue Farbe. Er ist da nicht empfindlich.</p>
+        </div>
+        <div class="demo reveal">
+          <button class="buddy" type="button" data-buddy data-mood="happy" id="demo-buddy" aria-label="Demo-Pulo. Antippen zum Anstupsen."></button>
+          <div>
+            <fieldset class="control">
+              <legend class="control-label">Buddy-Farbe</legend>
+              <div class="swatches" id="swatches">
+                <label class="swatch"><input type="radio" name="color" value="#14a3a8" checked><span style="--c:#14a3a8"></span><span class="sr-only">Türkis</span></label>
+                <label class="swatch"><input type="radio" name="color" value="#3b82f6"><span style="--c:#3b82f6"></span><span class="sr-only">Blau</span></label>
+                <label class="swatch"><input type="radio" name="color" value="#8b5cf6"><span style="--c:#8b5cf6"></span><span class="sr-only">Violett</span></label>
+                <label class="swatch"><input type="radio" name="color" value="#ec6a9c"><span style="--c:#ec6a9c"></span><span class="sr-only">Rosa</span></label>
+                <label class="swatch"><input type="radio" name="color" value="#f59e0b"><span style="--c:#f59e0b"></span><span class="sr-only">Orange</span></label>
+                <label class="swatch"><input type="radio" name="color" value="#22a55a"><span style="--c:#22a55a"></span><span class="sr-only">Grün</span></label>
+                <label class="custom-color"><input type="color" id="custom-color" value="#14a3a8">Eigene</label>
+              </div>
+            </fieldset>
+            <div class="control">
+              <span class="control-label" id="status-label">Serverstatus simulieren</span>
+              <div class="seg" role="group" aria-labelledby="status-label">
+                <button type="button" data-status="ok" aria-pressed="true"><span class="dot"></span>Online</button>
+                <button type="button" data-status="warn" aria-pressed="false"><span class="dot warn"></span>Langsam</button>
+                <button type="button" data-status="bad" aria-pressed="false"><span class="dot bad"></span>Offline</button>
+              </div>
+              <p class="status-line" id="status-line" aria-live="polite"><span class="dot"></span><span>Alles bestens. Dein Server antwortet.</span></p>
+            </div>
+            <p class="hint">Tipp: Auch per Tastatur bedienbar – mit Tab zu Pulo, dann Leertaste.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Preise ============ -->
+    <section id="preise" aria-labelledby="preise-h">
+      <div class="wrap">
+        <div class="center reveal">
+          <p class="eyebrow">Free & Pro</p>
+          <h2 id="preise-h">Klein anfangen. Groß aufdrehen.</h2>
+          <p class="lead">Free reicht für den schnellen Check. Pro, wenn Pulo für dich mitdenken soll.</p>
+        </div>
+        <div class="pricing">
+          <article class="card plan reveal">
+            <h3>Free</h3>
+            <p>Der schnelle Server-Check für zwischendurch.</p>
+            <p class="price">0 €</p>
+            <a class="btn btn-ghost" href="#preise" data-download>Pulo laden</a>
+          </article>
+          <article class="card plan pro reveal">
+            <h3>Pro <span class="badge">Empfohlen</span></h3>
+            <p>Für alle, die ihren Server nicht mehr aus den Augen lassen wollen.</p>
+            <!-- BORAN: Pro-Preis ergänzen (z. B. „X € / Monat“) -->
+            <p class="price">Preis folgt <small>bald</small></p>
+            <!-- BORAN: Link zum Pro-Kauf ergänzen -->
+            <a class="btn btn-primary" href="#preise" data-pro>Pro holen</a>
+          </article>
+        </div>
+        <div class="table-wrap reveal">
+          <!-- BORAN: Zuordnung Free/Pro prüfen – aktuell ein Entwurf -->
+          <table>
+            <caption>Free und Pro im Vergleich</caption>
+            <thead><tr><th scope="col">Funktion</th><th scope="col">Free</th><th scope="col">Pro</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Server-Check mit Klartext-Status</th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Pulo, der Buddy</th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Konto & Einstellungen</th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Dauerüberwachung</th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Status in der Menüleiste</th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Buddy-Farbe ändern</th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Roadmap ============ -->
+    <section id="roadmap" aria-labelledby="roadmap-h">
+      <div class="wrap">
+        <div class="center reveal">
+          <p class="eyebrow">Roadmap</p>
+          <h2 id="roadmap-h">Was als Nächstes kommt.</h2>
+          <p class="lead">Pulo wächst. Das hier steht auf seiner Liste.</p>
+        </div>
+        <ul class="roadmap">
+          <li class="reveal"><div><strong>Request-Tester</strong><span>Anfragen direkt aus Pulo abschicken.</span></div></li>
+          <li class="reveal"><div><strong>Tiefenprüfung</strong><span>DNS, Port und TLS im Detail.</span></div></li>
+          <li class="reveal"><div><strong>Export</strong><span>Ergebnisse als PDF oder Markdown.</span></div></li>
+          <li class="reveal"><div><strong>Diagramme</strong><span>Verläufe sehen statt raten.</span></div></li>
+          <li class="reveal"><div><strong>Mini-Spiel</strong><span>Für die Wartezeit zwischen zwei Deploys.</span></div></li>
+          <li class="reveal"><div><strong>Streaks</strong><span>Wie lange läuft dein Server schon am Stück?</span></div></li>
+          <li class="reveal"><div><strong>Accessoires</strong><span>Hütchen, Brillen & Co. für deinen Buddy.</span></div></li>
+          <li class="reveal"><div><strong>Windows-Version</strong><span>Pulo zieht bald auch auf Windows ein.</span></div></li>
+          <li class="reveal"><div><strong>Login mit Google & Apple</strong><span>Anmelden mit einem Klick.</span></div></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section id="faq" aria-labelledby="faq-h">
+      <div class="wrap">
+        <div class="center reveal">
+          <p class="eyebrow">FAQ</p>
+          <h2 id="faq-h">Kurz gefragt.</h2>
+        </div>
+        <div class="faq reveal">
+          <details>
+            <summary>Was ist Pulo?</summary>
+            <p>Pulo ist eine macOS-App, die prüft, ob dein lokaler Server erreichbar ist, und dir den Status in Klartext zeigt. Der gleichnamige Buddy zeigt dir mit seiner Mimik, wie es deinem Server geht. Früher hieß die App DevDock.</p>
+          </details>
+          <details>
+            <summary>Ist Pulo kostenlos?</summary>
+            <p>Ja, es gibt eine kostenlose Version. Mit Pro bekommst du zusätzliche Funktionen – die Details findest du oben im Vergleich.</p>
+          </details>
+          <details>
+            <summary>Gibt es Pulo für Windows?</summary>
+            <p>Noch nicht. Eine Windows-Version steht auf der Roadmap.</p>
+          </details>
+          <details>
+            <summary>Wie steht es um den Datenschutz?</summary>
+            <p>Pulo prüft deine lokalen Server direkt von deinem Mac aus. Alle Details zu Konto und Daten findest du in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-final" aria-labelledby="cta-h">
+      <div class="wrap center reveal">
+        <h2 id="cta-h">Bereit für deinen neuen Buddy?</h2>
+        <p class="lead">Pulo laden, Server prüfen, entspannt weiterarbeiten.</p>
+        <div class="btns" style="margin-top:1.6rem">
+          <a class="btn btn-primary" href="#preise" data-download>Pulo laden</a>
+          <a class="btn btn-ghost" href="#preise" data-pro>Pro holen</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© <span id="year">2026</span> Pulo</span>
+      <nav aria-label="Rechtliches und Kontakt">
+        <ul>
+          <li><a href="impressum.html">Impressum</a></li>
+          <li><a href="datenschutz.html">Datenschutz</a></li>
+          <!-- BORAN: Kontaktadresse ergänzen -->
+          <li><a href="mailto:kontakt@example.com">Kontakt</a></li>
+          <li><a href="https://github.com/ShnMert/Pulo" rel="noopener">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+  (() => {
+    // ================= Konfiguration =================
+    // BORAN: Download- und Pro-Link eintragen. Leer = Buttons springen zu den Preisen.
+    const DOWNLOAD_URL = "";
+    const PRO_URL = "";
+
+    document.documentElement.classList.add("js");
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+    const canHover = matchMedia("(hover: hover) and (pointer: fine)");
+    const root = document.documentElement;
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    if (DOWNLOAD_URL) document.querySelectorAll("[data-download]").forEach(a => a.href = DOWNLOAD_URL);
+    if (PRO_URL) document.querySelectorAll("[data-pro]").forEach(a => a.href = PRO_URL);
+
+    // ================= Buddy =================
+    const MOUTHS = {
+      happy:   "M84 132 Q100 148 116 132",
+      worried: "M86 136 Q93 131 100 136 Q107 141 114 136",
+      sad:     "M84 140 Q100 126 116 140",
+      wow:     "M93 136 Q100 126 107 136 Q100 146 93 136"
+    };
+    const LAMP = { ok: "var(--ok)", warn: "var(--warn)", bad: "var(--bad)" };
+    const tpl = document.getElementById("buddy-tpl");
+    const buddies = [...document.querySelectorAll("[data-buddy]")].map(el => {
+      el.appendChild(tpl.content.cloneNode(true));
+      const b = { el, svg: el.querySelector("svg"), pupils: [...el.querySelectorAll(".pupil")],
+                  mouth: el.querySelector(".mouth"), lamp: el.querySelector(".lamp"), mood: el.dataset.mood };
+      el.addEventListener("click", () => boop(b));
+      return b;
+    });
+
+    function setMood(b, mood) {
+      b.mood = mood; b.el.dataset.mood = mood;
+      b.mouth.setAttribute("d", MOUTHS[mood]);
+    }
+    function boop(b) {
+      b.el.classList.remove("boop"); void b.el.offsetWidth; b.el.classList.add("boop");
+      b.mouth.setAttribute("d", MOUTHS.wow);
+      clearTimeout(b.boopT);
+      b.boopT = setTimeout(() => { b.el.classList.remove("boop"); b.mouth.setAttribute("d", MOUTHS[b.mood]); }, 650);
+      blink(b);
+    }
+    function blink(b) {
+      b.el.classList.add("blink");
+      setTimeout(() => b.el.classList.remove("blink"), 130);
+    }
+    buddies.forEach(b => {
+      const loop = () => {
+        blink(b);
+        if (Math.random() < .2) setTimeout(() => blink(b), 260); // gelegentlich Doppel-Blinzeln
+        b.blinkT = setTimeout(loop, 2600 + Math.random() * 3200);
+      };
+      b.blinkT = setTimeout(loop, 1200 + Math.random() * 2000);
+    });
+
+    // Augen folgen dem Zeiger
+    function lookAt(b, x, y) {
+      const r = b.svg.getBoundingClientRect();
+      const s = r.width / 200;
+      b.pupils.forEach((p, i) => {
+        const ex = r.left + (i ? 122 : 78) * s, ey = r.top + 100 * s;
+        const dx = x - ex, dy = y - ey, d = Math.hypot(dx, dy) || 1;
+        const m = Math.min(5.5, d / 40);
+        p.style.transform = `translate(${(dx / d) * m}px, ${(dy / d) * m * .9}px)`;
+      });
+    }
+    let px = 0, py = 0, raf = 0;
+    addEventListener("pointermove", e => {
+      if (e.pointerType !== "mouse") return;
+      px = e.clientX; py = e.clientY;
+      if (!raf) raf = requestAnimationFrame(() => { raf = 0; buddies.forEach(b => lookAt(b, px, py)); });
+    }, { passive: true });
+
+    // Touch / kein Hover: sanfte Idle-Animation, Augen schweifen umher
+    function setupIdle() {
+      const idle = !canHover.matches && !reduceMotion.matches;
+      buddies.forEach(b => b.el.classList.toggle("idle", idle));
+      clearInterval(setupIdle.t);
+      if (!canHover.matches) {
+        const wander = () => buddies.forEach(b => {
+          const r = b.svg.getBoundingClientRect();
+          lookAt(b, r.left + r.width * Math.random(), r.top + r.height * (.2 + Math.random() * .7));
+        });
+        wander();
+        setupIdle.t = setInterval(wander, 3200);
+      }
+    }
+    setupIdle();
+    canHover.addEventListener("change", setupIdle);
+    reduceMotion.addEventListener("change", setupIdle);
+
+    // ================= Farbwähler =================
+    function setColor(c) {
+      root.style.setProperty("--buddy", c);
+      try { localStorage.setItem("pulo-color", c); } catch {}
+    }
+    const swatches = document.getElementById("swatches");
+    const custom = document.getElementById("custom-color");
+    swatches.addEventListener("change", e => {
+      if (e.target.name === "color") { setColor(e.target.value); custom.value = e.target.value; }
+    });
+    custom.addEventListener("input", () => {
+      swatches.querySelectorAll("input[name=color]").forEach(i => i.checked = false);
+      setColor(custom.value);
+    });
+    try {
+      const saved = localStorage.getItem("pulo-color");
+      if (saved) {
+        setColor(saved); custom.value = saved;
+        const match = swatches.querySelector(`input[value="${saved}"]`);
+        swatches.querySelectorAll("input[name=color]").forEach(i => i.checked = i === match);
+      }
+    } catch {}
+
+    // ================= Serverstatus-Demo =================
+    const STATUS = {
+      ok:   { mood: "happy",   text: "Alles bestens. Dein Server antwortet." },
+      warn: { mood: "worried", text: "Hm, dein Server antwortet – aber er lässt sich Zeit." },
+      bad:  { mood: "sad",     text: "Dein Server ist nicht erreichbar. Pulo ist traurig." }
+    };
+    const demo = buddies.find(b => b.el.id === "demo-buddy");
+    const line = document.getElementById("status-line");
+    document.querySelectorAll("[data-status]").forEach(btn => btn.addEventListener("click", () => {
+      const key = btn.dataset.status, s = STATUS[key];
+      document.querySelectorAll("[data-status]").forEach(o => o.setAttribute("aria-pressed", o === btn));
+      setMood(demo, s.mood);
+      demo.lamp.style.fill = LAMP[key];
+      line.innerHTML = `<span class="dot ${key === "ok" ? "" : key}"></span><span>${s.text}</span>`;
+    }));
+
+    // ================= Video =================
+    const video = document.getElementById("promo");
+    const playBtn = document.getElementById("play-btn");
+    const placeholder = document.getElementById("video-placeholder");
+    const source = video.querySelector("source");
+    const showPlaceholder = () => { placeholder.hidden = false; playBtn.hidden = true; video.hidden = true; };
+    source.addEventListener("error", showPlaceholder);
+    if (!source.getAttribute("src")) showPlaceholder();
+    playBtn.addEventListener("click", () => { video.play().catch(() => {}); video.focus(); });
+    video.addEventListener("play", () => playBtn.hidden = true);
+    video.addEventListener("ended", () => playBtn.hidden = false);
+
+    document.querySelectorAll("[data-watch]").forEach(a => a.addEventListener("click", e => {
+      e.preventDefault();
+      document.getElementById("video").scrollIntoView({ behavior: reduceMotion.matches ? "auto" : "smooth" });
+      if (!video.hidden) video.play().catch(() => {});
+      (video.hidden ? placeholder : video).setAttribute("tabindex", "-1");
+      (video.hidden ? placeholder : video).focus({ preventScroll: true });
+    }));
+
+    // ================= Scroll-Reveal & Parallax =================
+    const io = new IntersectionObserver(entries => entries.forEach(en => {
+      if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+    }), { rootMargin: "0px 0px -8% 0px", threshold: .08 });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+    const par = [...document.querySelectorAll("[data-parallax]")];
+    let ticking = false;
+    addEventListener("scroll", () => {
+      if (reduceMotion.matches || ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        par.forEach(el => el.style.transform = `translate3d(0, ${scrollY * el.dataset.parallax}px, 0)`);
+        ticking = false;
+      });
+    }, { passive: true });
+  })();
+  </script>
+</body>
+</html>
