@@ -27,11 +27,12 @@
     .note { margin:0; font-size:.88rem; }
     button { justify-self:start; min-height:48px; padding:.7rem 1.6rem; border:0; border-radius:999px; background:var(--accent); color:var(--accent-ink); font:inherit; font-weight:600; cursor:pointer; }
     button:hover { filter:brightness(1.08); }
+    .back { text-decoration:none; font-weight:600; }
   </style>
 </head>
 <body>
   <main>
-    <p><a href="/">← Zurück zu Pulo</a></p>
+    <p><a class="back" href="/">← Zurück zu Pulo</a></p>
     <h1>Kontakt</h1>
     <p>Frage, Idee oder Fehler gefunden? Schreib uns, wir lesen jede Nachricht.</p>
     <form name="kontaktformular" method="POST" action="/kontakt-danke" data-netlify="true" netlify-honeypot="bot-field">
