@@ -251,6 +251,8 @@
     td:not(:first-child), thead th:not(:first-child) { text-align: center; width: 22%; }
     .yes { color: var(--accent); font-weight: 700; }
     .no { color: var(--text-2); }
+    th .desc { display: block; margin-top: .2rem; font-size: .85rem; font-weight: 400; color: var(--text-2); }
+    tbody td { font-size: .92rem; }
 
     /* ============ Roadmap ============ */
     .roadmap { list-style: none; padding: 0; margin: 3rem 0 0; display: grid; gap: .8rem; }
@@ -538,17 +540,23 @@
           </article>
         </div>
         <div class="table-wrap reveal">
-          <!-- BORAN: Zuordnung Free/Pro prüfen – aktuell ein Entwurf -->
           <table>
             <caption>Free und Pro im Vergleich</caption>
             <thead><tr><th scope="col">Funktion</th><th scope="col">Free</th><th scope="col">Pro</th></tr></thead>
             <tbody>
-              <tr><th scope="row">Server-Check mit Klartext-Status</th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
-              <tr><th scope="row">Pulo, der Buddy</th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
-              <tr><th scope="row">Konto & Einstellungen</th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
-              <tr><th scope="row">Dauerüberwachung</th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
-              <tr><th scope="row">Status in der Menüleiste</th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
-              <tr><th scope="row">Buddy-Farbe ändern</th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Basis-Diagnose<small class="desc">Erreichbarkeit von localhost und Port prüfen, Statuscode erklärt</small></th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Buddy mit Grundfunktionen<small class="desc">Mimik, Reaktionen, 360°-Ansicht</small></th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Buddy-Farben</th><td>Blau, Mint, Pink</td><td>Alle</td></tr>
+              <tr><th scope="row">Ninja-Look</th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Verlauf</th><td>Letzte 5 Prüfungen</td><td>Unbegrenzt</td></tr>
+              <tr><th scope="row">Dark/Light Mode & Barrierefreiheit</th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Dauerüberwachung in der Menüleiste<small class="desc">Mit Benachrichtigung, wenn ein Server ausfällt</small></th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Überwachte Server</th><td>1–2</td><td>Mehrere gleichzeitig</td></tr>
+              <tr><th scope="row">Tiefenprüfung<small class="desc">DNS, Port-Scan, TLS-Zertifikat samt Ablaufwarnung</small></th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Request-Tester<small class="desc">Eigene Requests mit Header und Body, gespeicherte Anfragen</small></th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Export als PDF & Markdown</th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Diagramme<small class="desc">Verläufe mit Swift Charts</small></th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Buddy-Extras<small class="desc">Alle Accessoires, Mini-Spiel, Streaks</small></th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -626,7 +634,6 @@
           <li><a href="datenschutz.html">Datenschutz</a></li>
           <!-- BORAN: Kontaktadresse ergänzen -->
           <li><a href="mailto:kontakt@example.com">Kontakt</a></li>
-          <li><a href="https://github.com/ShnMert/Pulo" rel="noopener">GitHub</a></li>
         </ul>
       </nav>
     </div>
