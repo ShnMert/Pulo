@@ -254,6 +254,40 @@
     th .desc { display: block; margin-top: .2rem; font-size: .85rem; font-weight: 400; color: var(--text-2); }
     tbody td { font-size: .92rem; }
 
+    .price-options { list-style: none; padding: 0; margin: 0 0 1.4rem; display: grid; gap: .55rem; }
+    .price-options li { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: .7rem 1rem; border-radius: 14px; background: var(--accent-soft); }
+    .price-options strong { font-size: 1.15rem; letter-spacing: -.01em; white-space: nowrap; }
+    .price-options small { display: block; font-size: .82rem; color: var(--text-2); }
+
+    /* ============ Download-Dialog ============ */
+    .dl-dialog {
+      width: min(560px, 100% - 2rem); max-height: calc(100dvh - 2rem); overflow-y: auto; padding: 0; border: 1px solid var(--line);
+      border-radius: calc(var(--radius) + 6px); background: var(--bg-elev); color: var(--text); box-shadow: var(--shadow);
+    }
+    .dl-dialog::backdrop { background: rgba(8, 12, 16, .5); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+    .dl-dialog form { padding: clamp(1.4rem, 4vw, 2.2rem); }
+    .dl-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+    .dl-head h2 { font-size: 1.6rem; margin: 0; }
+    .dl-close { border: 0; background: var(--accent-soft); color: var(--text); width: 38px; height: 38px; border-radius: 50%; font-size: 1.3rem; line-height: 1; cursor: pointer; flex: none; }
+    .dl-step { margin-top: 1.6rem; }
+    .dl-step legend { font-weight: 600; margin-bottom: .7rem; }
+    .dl-step legend span { display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; margin-right: .45rem; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: .85rem; }
+    .choices { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+    .choice { position: relative; }
+    .choice input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+    .choice > span {
+      display: flex; flex-direction: column; gap: .15rem; height: 100%; padding: .95rem 1.1rem; border-radius: 16px;
+      border: 2px solid var(--line); transition: border-color .2s, background .2s;
+    }
+    .choice strong { font-size: 1.05rem; }
+    .choice small { color: var(--text-2); font-size: .85rem; }
+    .choice input:checked + span { border-color: var(--accent); background: var(--accent-soft); }
+    .choice input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 3px; }
+    .dl-step[hidden] { display: none; }
+    .dl-actions { margin-top: 1.8rem; display: flex; flex-direction: column; gap: .7rem; }
+    .dl-actions .btn { width: 100%; }
+    .dl-msg { margin: 0; font-size: .92rem; color: var(--text-2); text-align: center; min-height: 1.4em; }
+
     /* ============ Roadmap ============ */
     .roadmap { list-style: none; padding: 0; margin: 3rem 0 0; display: grid; gap: .8rem; }
     @media (min-width: 640px) { .roadmap { grid-template-columns: repeat(2, 1fr); } }
@@ -533,9 +567,12 @@
           <article class="card plan pro reveal">
             <h3>Pro <span class="badge">Empfohlen</span></h3>
             <p>Für alle, die ihren Server nicht mehr aus den Augen lassen wollen.</p>
-            <!-- BORAN: Pro-Preis ergänzen (z. B. „X € / Monat“) -->
-            <p class="price">Preis folgt <small>bald</small></p>
-            <!-- BORAN: Link zum Pro-Kauf ergänzen -->
+            <p class="price">ab 2,50 € <small>/ Monat</small></p>
+            <ul class="price-options">
+              <li><span>Monatlich</span><strong>3,99 €</strong></li>
+              <li><span>Jährlich<small>etwa 2,50 € pro Monat</small></span><strong>29,99 €</strong></li>
+              <li><span>Einmalkauf (Lifetime)<small>Einmal zahlen, für immer Pro</small></span><strong>49 €</strong></li>
+            </ul>
             <a class="btn btn-primary" href="#preise" data-pro>Pro holen</a>
           </article>
         </div>
@@ -639,12 +676,52 @@
     </div>
   </footer>
 
+  <!-- ============ Download-Dialog ============ -->
+  <dialog class="dl-dialog" id="dl-dialog" aria-labelledby="dl-title">
+    <form method="dialog" id="dl-form">
+      <div class="dl-head">
+        <h2 id="dl-title">Pulo laden</h2>
+        <button class="dl-close" type="button" data-dl-close aria-label="Schließen">×</button>
+      </div>
+      <fieldset class="dl-step">
+        <legend><span>1</span>Für welches System?</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="os" value="mac" checked><span><strong>macOS</strong><small>Für deinen Mac</small></span></label>
+          <label class="choice"><input type="radio" name="os" value="windows"><span><strong>Windows</strong><small>Für deinen PC</small></span></label>
+        </div>
+      </fieldset>
+      <fieldset class="dl-step">
+        <legend><span>2</span>Free oder Pro?</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="edition" value="free" checked><span><strong>Free</strong><small>0 € – der schnelle Check</small></span></label>
+          <label class="choice"><input type="radio" name="edition" value="pro"><span><strong>Pro</strong><small>ab 2,50 € / Monat</small></span></label>
+        </div>
+      </fieldset>
+      <fieldset class="dl-step" id="dl-plan" hidden>
+        <legend><span>3</span>Wie möchtest du Pro bezahlen?</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="plan" value="monthly"><span><strong>3,99 €</strong><small>Monatlich</small></span></label>
+          <label class="choice"><input type="radio" name="plan" value="yearly" checked><span><strong>29,99 €</strong><small>Jährlich · ca. 2,50 €/Monat</small></span></label>
+          <label class="choice"><input type="radio" name="plan" value="lifetime"><span><strong>49 €</strong><small>Einmalkauf (Lifetime)</small></span></label>
+        </div>
+      </fieldset>
+      <div class="dl-actions">
+        <button class="btn btn-primary" type="submit">Fortsetzen</button>
+        <p class="dl-msg" id="dl-msg" role="status" aria-live="polite"></p>
+      </div>
+    </form>
+  </dialog>
+
   <script>
   (() => {
     // ================= Konfiguration =================
-    // BORAN: Download- und Pro-Link eintragen. Leer = Buttons springen zu den Preisen.
-    const DOWNLOAD_URL = "";
-    const PRO_URL = "";
+    // BORAN: Links eintragen. Der Download-Dialog leitet je nach Auswahl
+    // (System → Free/Pro → Zahlweise) auf den passenden Link weiter.
+    // Leer = im Dialog erscheint ein Hinweis, dass der Link bald folgt.
+    const LINKS = {
+      mac:     { free: "", monthly: "", yearly: "", lifetime: "" },
+      windows: { free: "", monthly: "", yearly: "", lifetime: "" }
+    };
 
     document.documentElement.classList.add("js");
     const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
@@ -652,8 +729,35 @@
     const root = document.documentElement;
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    if (DOWNLOAD_URL) document.querySelectorAll("[data-download]").forEach(a => a.href = DOWNLOAD_URL);
-    if (PRO_URL) document.querySelectorAll("[data-pro]").forEach(a => a.href = PRO_URL);
+    // ================= Download-Dialog =================
+    const dlg = document.getElementById("dl-dialog");
+    const dlForm = document.getElementById("dl-form");
+    const dlPlan = document.getElementById("dl-plan");
+    const dlMsg = document.getElementById("dl-msg");
+    const syncPlan = () => { dlPlan.hidden = dlForm.edition.value !== "pro"; dlMsg.textContent = ""; };
+    dlForm.addEventListener("change", syncPlan);
+    function openDownload(edition) {
+      if (typeof dlg.showModal !== "function") return false;
+      dlForm.edition.value = edition;
+      if (/Win/i.test(navigator.userAgent) && !/Mac/i.test(navigator.userAgent)) dlForm.os.value = "windows";
+      syncPlan();
+      dlg.showModal();
+      return true;
+    }
+    document.querySelectorAll("[data-download], [data-pro]").forEach(a => a.addEventListener("click", e => {
+      if (openDownload(a.hasAttribute("data-pro") ? "pro" : "free")) e.preventDefault();
+    }));
+    dlg.querySelector("[data-dl-close]").addEventListener("click", () => dlg.close());
+    dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+    dlForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const os = dlForm.os.value, edition = dlForm.edition.value;
+      const url = LINKS[os][edition === "pro" ? dlForm.plan.value : "free"];
+      if (url) { location.href = url; return; }
+      dlMsg.textContent = os === "windows"
+        ? "Die Windows-Version ist bald verfügbar – schau gern wieder vorbei."
+        : "Der Link folgt in Kürze.";
+    });
 
     // ================= Buddy =================
     const MOUTHS = {
