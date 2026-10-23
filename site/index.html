@@ -100,14 +100,16 @@
       -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
       border-bottom: 1px solid var(--line);
     }
-    .nav .wrap { display: flex; align-items: center; gap: 1rem; height: 60px; }
+    .nav .wrap { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; height: 60px; }
+    .nav .logo { grid-column: 2; grid-row: 1; }
+    .nav ul { grid-column: 1; grid-row: 1; justify-self: start; }
+    .nav .btn { grid-column: 3; grid-row: 1; justify-self: end; }
     .logo { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1.2rem; color: var(--text); text-decoration: none; letter-spacing: -.02em; }
     .logo img { width: 28px; height: 28px; }
-    .nav ul { display: none; list-style: none; margin: 0 0 0 auto; padding: 0; gap: 1.8rem; }
+    .nav ul { display: none; list-style: none; margin: 0; padding: 0; gap: 1.8rem; }
     .nav ul a { color: var(--text-2); text-decoration: none; font-size: .95rem; }
     .nav ul a:hover { color: var(--text); }
-    .nav .btn { margin-left: auto; }
-    @media (min-width: 720px) { .nav ul { display: flex; } .nav .btn { margin-left: 1.2rem; } }
+    @media (min-width: 720px) { .nav ul { display: flex; } }
 
     /* ============ Hero ============ */
     .hero { padding-top: clamp(3rem, 8vw, 6rem); position: relative; overflow: hidden; }
@@ -390,7 +392,7 @@
       <div class="glow" data-parallax=".18" aria-hidden="true"></div>
       <div class="wrap">
         <div class="reveal">
-          <p class="eyebrow">Für macOS · früher DevDock</p>
+          <p class="eyebrow">Für macOS</p>
           <!-- BORAN: Slogan aus dem Video hier als Headline einsetzen, falls gewünscht -->
           <h1>Läuft dein Server? <span>Pulo weiß es.</span></h1>
           <p class="lead">Pulo prüft, ob dein lokaler Server erreichbar ist – und sagt es dir in Klartext. Mit einem kleinen Buddy, der sich mitfreut.</p>
@@ -585,7 +587,7 @@
         <div class="faq reveal">
           <details>
             <summary>Was ist Pulo?</summary>
-            <p>Pulo ist eine macOS-App, die prüft, ob dein lokaler Server erreichbar ist, und dir den Status in Klartext zeigt. Der gleichnamige Buddy zeigt dir mit seiner Mimik, wie es deinem Server geht. Früher hieß die App DevDock.</p>
+            <p>Pulo ist eine macOS-App, die prüft, ob dein lokaler Server erreichbar ist, und dir den Status in Klartext zeigt. Der gleichnamige Buddy zeigt dir mit seiner Mimik, wie es deinem Server geht.</p>
           </details>
           <details>
             <summary>Ist Pulo kostenlos?</summary>
