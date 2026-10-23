@@ -1,5 +1,8 @@
 /* ============ Design-Tokens ============
    Hauptfarbe von Pulo: Blau (--accent / --buddy). */
+/* Seitenwechsel (z. B. DE ↔ EN) als weiche Überblendung statt Aufblitzen */
+@view-transition { navigation: auto; }
+
 :root {
   --buddy: #4f7ff0;
   --accent: #2f5fd6;          /* Text/Buttons auf Hell: AA-Kontrast */
