@@ -100,14 +100,16 @@
       -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
       border-bottom: 1px solid var(--line);
     }
-    .nav .wrap { display: flex; align-items: center; gap: 1rem; height: 60px; }
+    .nav .wrap { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; height: 60px; }
+    .nav .logo { grid-column: 2; grid-row: 1; }
+    .nav ul { grid-column: 1; grid-row: 1; justify-self: start; }
+    .nav .btn { grid-column: 3; grid-row: 1; justify-self: end; }
     .logo { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1.2rem; color: var(--text); text-decoration: none; letter-spacing: -.02em; }
     .logo img { width: 28px; height: 28px; }
-    .nav ul { display: none; list-style: none; margin: 0 0 0 auto; padding: 0; gap: 1.8rem; }
+    .nav ul { display: none; list-style: none; margin: 0; padding: 0; gap: 1.8rem; }
     .nav ul a { color: var(--text-2); text-decoration: none; font-size: .95rem; }
     .nav ul a:hover { color: var(--text); }
-    .nav .btn { margin-left: auto; }
-    @media (min-width: 720px) { .nav ul { display: flex; } .nav .btn { margin-left: 1.2rem; } }
+    @media (min-width: 720px) { .nav ul { display: flex; } }
 
     /* ============ Hero ============ */
     .hero { padding-top: clamp(3rem, 8vw, 6rem); position: relative; overflow: hidden; }
@@ -249,6 +251,8 @@
     td:not(:first-child), thead th:not(:first-child) { text-align: center; width: 22%; }
     .yes { color: var(--accent); font-weight: 700; }
     .no { color: var(--text-2); }
+    th .desc { display: block; margin-top: .2rem; font-size: .85rem; font-weight: 400; color: var(--text-2); }
+    tbody td { font-size: .92rem; }
 
     /* ============ Roadmap ============ */
     .roadmap { list-style: none; padding: 0; margin: 3rem 0 0; display: grid; gap: .8rem; }
@@ -390,7 +394,7 @@
       <div class="glow" data-parallax=".18" aria-hidden="true"></div>
       <div class="wrap">
         <div class="reveal">
-          <p class="eyebrow">Für macOS · früher DevDock</p>
+          <p class="eyebrow">Für macOS</p>
           <!-- BORAN: Slogan aus dem Video hier als Headline einsetzen, falls gewünscht -->
           <h1>Läuft dein Server? <span>Pulo weiß es.</span></h1>
           <p class="lead">Pulo prüft, ob dein lokaler Server erreichbar ist – und sagt es dir in Klartext. Mit einem kleinen Buddy, der sich mitfreut.</p>
@@ -536,17 +540,23 @@
           </article>
         </div>
         <div class="table-wrap reveal">
-          <!-- BORAN: Zuordnung Free/Pro prüfen – aktuell ein Entwurf -->
           <table>
             <caption>Free und Pro im Vergleich</caption>
             <thead><tr><th scope="col">Funktion</th><th scope="col">Free</th><th scope="col">Pro</th></tr></thead>
             <tbody>
-              <tr><th scope="row">Server-Check mit Klartext-Status</th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
-              <tr><th scope="row">Pulo, der Buddy</th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
-              <tr><th scope="row">Konto & Einstellungen</th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
-              <tr><th scope="row">Dauerüberwachung</th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
-              <tr><th scope="row">Status in der Menüleiste</th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
-              <tr><th scope="row">Buddy-Farbe ändern</th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Basis-Diagnose<small class="desc">Erreichbarkeit von localhost und Port prüfen, Statuscode erklärt</small></th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Buddy mit Grundfunktionen<small class="desc">Mimik, Reaktionen, 360°-Ansicht</small></th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Buddy-Farben</th><td>Blau, Mint, Pink</td><td>Alle</td></tr>
+              <tr><th scope="row">Ninja-Look</th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Verlauf</th><td>Letzte 5 Prüfungen</td><td>Unbegrenzt</td></tr>
+              <tr><th scope="row">Dark/Light Mode & Barrierefreiheit</th><td><span class="yes" aria-label="enthalten">✓</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Dauerüberwachung in der Menüleiste<small class="desc">Mit Benachrichtigung, wenn ein Server ausfällt</small></th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Überwachte Server</th><td>1–2</td><td>Mehrere gleichzeitig</td></tr>
+              <tr><th scope="row">Tiefenprüfung<small class="desc">DNS, Port-Scan, TLS-Zertifikat samt Ablaufwarnung</small></th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Request-Tester<small class="desc">Eigene Requests mit Header und Body, gespeicherte Anfragen</small></th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Export als PDF & Markdown</th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Diagramme<small class="desc">Verläufe mit Swift Charts</small></th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
+              <tr><th scope="row">Buddy-Extras<small class="desc">Alle Accessoires, Mini-Spiel, Streaks</small></th><td><span class="no" aria-label="nicht enthalten">–</span></td><td><span class="yes" aria-label="enthalten">✓</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -585,7 +595,7 @@
         <div class="faq reveal">
           <details>
             <summary>Was ist Pulo?</summary>
-            <p>Pulo ist eine macOS-App, die prüft, ob dein lokaler Server erreichbar ist, und dir den Status in Klartext zeigt. Der gleichnamige Buddy zeigt dir mit seiner Mimik, wie es deinem Server geht. Früher hieß die App DevDock.</p>
+            <p>Pulo ist eine macOS-App, die prüft, ob dein lokaler Server erreichbar ist, und dir den Status in Klartext zeigt. Der gleichnamige Buddy zeigt dir mit seiner Mimik, wie es deinem Server geht.</p>
           </details>
           <details>
             <summary>Ist Pulo kostenlos?</summary>
@@ -624,7 +634,6 @@
           <li><a href="datenschutz.html">Datenschutz</a></li>
           <!-- BORAN: Kontaktadresse ergänzen -->
           <li><a href="mailto:kontakt@example.com">Kontakt</a></li>
-          <li><a href="https://github.com/ShnMert/Pulo" rel="noopener">GitHub</a></li>
         </ul>
       </nav>
     </div>
