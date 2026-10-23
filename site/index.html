@@ -4,327 +4,47 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Pulo – Server-Check für den Mac, mit Buddy</title>
-  <meta name="description" content="Pulo prüft, ob dein lokaler Server läuft, und zeigt dir den Status in Klartext – mit einem freundlichen 3D-Buddy. Die Server-Diagnose für macOS.">
+  <meta name="description" content="Pulo prüft, ob dein lokaler Server läuft, und erklärt den Status in Klartext – mit einem freundlichen Buddy in der Mac-Menüleiste.">
+  <!-- FEHLT: Autorname – sobald bekannt, in content="" eintragen. -->
+  <meta name="author" content="">
+  <link rel="canonical" href="https://puloo.netlify.app/">
+  <link rel="alternate" hreflang="de" href="https://puloo.netlify.app/">
+  <link rel="alternate" hreflang="en" href="https://puloo.netlify.app/en/">
+  <link rel="alternate" hreflang="x-default" href="https://puloo.netlify.app/en/">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#f5f7f8" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0b1114" media="(prefers-color-scheme: dark)">
+  <script>try{var m=localStorage.getItem("pulo-theme");if(m==="light"||m==="dark")document.documentElement.dataset.theme=m}catch(e){}</script>
+
+  <!-- Open Graph -->
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Pulo">
   <meta property="og:title" content="Pulo – Server-Check für den Mac, mit Buddy">
-  <meta property="og:description" content="Pulo prüft, ob dein Server läuft. Ein süßer Buddy zeigt es dir.">
-  <meta property="og:image" content="https://puloo.netlify.app/og-image.png">
+  <meta property="og:description" content="Pulo prüft, ob dein lokaler Server läuft, und erklärt den Status in Klartext – mit einem freundlichen Buddy in der Mac-Menüleiste.">
   <meta property="og:url" content="https://puloo.netlify.app/">
+  <meta property="og:image" content="https://puloo.netlify.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Pulo, der blaue Roboter-Buddy, zeigt den Serverstatus an">
   <meta property="og:locale" content="de_DE">
+  <meta property="og:locale:alternate" content="en_US">
+
+  <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <style>
-    /* ============ Design-Tokens ============
-       Hauptfarbe von Pulo: Blau (--accent / --buddy). */
-    :root {
-      --buddy: #4f7ff0;
-      --accent: #2f5fd6;          /* Text/Buttons auf Hell: AA-Kontrast */
-      --accent-ink: #ffffff;
-      --accent-soft: rgba(79, 127, 240, .12);
-      --bg: #f5f7f8;
-      --bg-elev: #ffffff;
-      --text: #10181c;
-      --text-2: #4a5961;
-      --line: rgba(16, 24, 28, .09);
-      --glass: rgba(255, 255, 255, .72);
-      --shadow: 0 1px 2px rgba(16,24,28,.04), 0 12px 40px rgba(16,24,28,.08);
-      --ok: #1f9d55; --warn: #b7791f; --bad: #d64545;
-      --radius: 22px;
-      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
-      --ease: cubic-bezier(.22, .8, .25, 1);
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --accent: #8fb0ff;
-        --accent-ink: #0a1633;
-        --accent-soft: rgba(143, 176, 255, .14);
-        --bg: #0b1114;
-        --bg-elev: #131b1f;
-        --text: #eef3f4;
-        --text-2: #a3b1b7;
-        --line: rgba(255, 255, 255, .09);
-        --glass: rgba(19, 27, 31, .66);
-        --shadow: 0 1px 2px rgba(0,0,0,.3), 0 16px 48px rgba(0,0,0,.35);
-        --ok: #4ade80; --warn: #fbbf24; --bad: #f87171;
-      }
-    }
+  <meta name="twitter:title" content="Pulo – Server-Check für den Mac, mit Buddy">
+  <meta name="twitter:description" content="Pulo prüft, ob dein lokaler Server läuft, und erklärt den Status in Klartext – mit einem freundlichen Buddy in der Mac-Menüleiste.">
+  <meta name="twitter:image" content="https://puloo.netlify.app/og-image.png">
+  <meta name="twitter:image:alt" content="Pulo, der blaue Roboter-Buddy, zeigt den Serverstatus an">
 
-    *, *::before, *::after { box-sizing: border-box; }
-    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-    body {
-      margin: 0; font-family: var(--font); background: var(--bg); color: var(--text);
-      line-height: 1.55; font-size: 17px; -webkit-font-smoothing: antialiased; overflow-x: hidden;
-    }
-    img, svg, video { display: block; max-width: 100%; }
-    a { color: var(--accent); }
-    h1, h2, h3 { line-height: 1.08; letter-spacing: -.025em; margin: 0 0 .5em; font-weight: 700; }
-    h1 { font-size: clamp(2.6rem, 7vw, 4.8rem); }
-    h2 { font-size: clamp(2rem, 4.6vw, 3.2rem); }
-    h3 { font-size: 1.25rem; letter-spacing: -.01em; }
-    p { margin: 0 0 1em; }
-    .wrap { width: min(1120px, 100% - 2.5rem); margin-inline: auto; }
-    .eyebrow { color: var(--accent); font-weight: 600; font-size: .95rem; margin-bottom: .6rem; letter-spacing: .01em; }
-    .lead { font-size: clamp(1.1rem, 2.2vw, 1.35rem); color: var(--text-2); max-width: 38ch; }
-    .center { text-align: center; }
-    .center .lead { margin-inline: auto; }
-    section { padding: clamp(4.5rem, 11vw, 8.5rem) 0; scroll-margin-top: 64px; }
-    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  <!-- Icons -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-96.png" sizes="96x96" type="image/png">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
 
-    :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 10px; }
-    .skip { position: absolute; left: 1rem; top: -4rem; background: var(--bg-elev); padding: .7rem 1rem; border-radius: 12px; z-index: 100; box-shadow: var(--shadow); }
-    .skip:focus { top: 1rem; }
-
-    /* ============ Buttons ============ */
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
-      min-height: 48px; padding: .75rem 1.4rem; border-radius: 999px; font: inherit; font-weight: 600;
-      text-decoration: none; cursor: pointer; border: 1px solid transparent;
-      transition: transform .25s var(--ease), background-color .25s, box-shadow .25s;
-    }
-    .btn:hover { transform: translateY(-1px); }
-    .btn:active { transform: scale(.98); }
-    .btn-primary { background: var(--accent); color: var(--accent-ink); box-shadow: 0 6px 20px -6px color-mix(in srgb, var(--accent) 60%, transparent); }
-    .btn-ghost { background: var(--accent-soft); color: var(--accent); }
-    .btn-small { min-height: 38px; padding: .45rem 1rem; font-size: .92rem; }
-    .btns { display: flex; flex-wrap: wrap; gap: .8rem; }
-    .center .btns { justify-content: center; }
-
-    /* ============ Navigation ============ */
-    .nav {
-      position: sticky; top: 0; z-index: 50; background: var(--glass);
-      -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
-      border-bottom: 1px solid var(--line);
-    }
-    .nav .wrap { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; height: 60px; }
-    .nav .logo { grid-column: 2; grid-row: 1; }
-    .nav ul { grid-column: 1; grid-row: 1; justify-self: start; }
-    .nav .btn { grid-column: 3; grid-row: 1; justify-self: end; }
-    .logo { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1.2rem; color: var(--text); text-decoration: none; letter-spacing: -.02em; }
-    .logo img { width: 28px; height: 28px; }
-    .nav ul { display: none; list-style: none; margin: 0; padding: 0; gap: 1.8rem; }
-    .nav ul a { color: var(--text-2); text-decoration: none; font-size: .95rem; }
-    .nav ul a:hover { color: var(--text); }
-    @media (min-width: 720px) { .nav ul { display: flex; } }
-
-    /* ============ Hero ============ */
-    .hero { padding-top: clamp(3rem, 8vw, 6rem); position: relative; overflow: hidden; }
-    .hero .wrap { display: grid; gap: 2.5rem; align-items: center; }
-    @media (min-width: 900px) { .hero .wrap { grid-template-columns: 1.1fr .9fr; } }
-    .hero h1 span { color: var(--accent); }
-    .hero .btns { margin-top: 1.8rem; }
-    .hero-note { margin-top: 1rem; font-size: .9rem; color: var(--text-2); }
-    .glow {
-      position: absolute; inset: auto; width: 60vmax; height: 60vmax; border-radius: 50%; pointer-events: none; z-index: -1;
-      background: radial-gradient(circle, color-mix(in srgb, var(--buddy) 22%, transparent), transparent 65%);
-      right: -20vmax; top: -15vmax; will-change: transform;
-    }
-    .hero-stage { position: relative; display: grid; place-items: center; }
-    .status-card {
-      position: absolute; left: 0; bottom: 8%; display: flex; align-items: center; gap: .6rem;
-      padding: .7rem 1rem; border-radius: 16px; background: var(--glass); border: 1px solid var(--line);
-      -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: var(--shadow); font-size: .92rem;
-    }
-    .status-card code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .85rem; color: var(--text-2); }
-    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 20%, transparent); flex: none; }
-    .dot.warn { background: var(--warn); box-shadow: 0 0 0 4px color-mix(in srgb, var(--warn) 20%, transparent); }
-    .dot.bad { background: var(--bad); box-shadow: 0 0 0 4px color-mix(in srgb, var(--bad) 20%, transparent); }
-
-    /* ============ Buddy ============ */
-    .buddy {
-      width: min(420px, 82vw); aspect-ratio: 1; padding: 0; border: 0; background: none; cursor: pointer;
-      -webkit-tap-highlight-color: transparent; border-radius: 40%;
-    }
-    .buddy svg { width: 100%; height: 100%; overflow: visible; }
-    .buddy .body-g { transform-origin: 50% 97%; transform-box: fill-box; }
-    .buddy .eye { transform-box: fill-box; transform-origin: center; transition: transform .09s ease-in; }
-    .buddy.blink .eye { transform: scaleY(.08); }
-    .buddy .pupil { transition: transform .12s linear; }
-    .buddy .brow { transition: transform .3s; transform-box: fill-box; transform-origin: center; }
-    .buddy[data-mood="sad"] .brow-l { transform: rotate(14deg) translateY(-2px); }
-    .buddy[data-mood="sad"] .brow-r { transform: rotate(-14deg) translateY(-2px); }
-    .buddy[data-mood="worried"] .brow-l { transform: rotate(-8deg); }
-    .buddy[data-mood="worried"] .brow-r { transform: rotate(8deg); }
-    .buddy .cheek { transition: opacity .3s; }
-    .buddy[data-mood="sad"] .cheek { opacity: .1; }
-    .buddy .mouth { transition: d .3s var(--ease); }
-    .buddy .tear { opacity: 0; transition: opacity .4s; }
-    .buddy[data-mood="sad"] .tear { opacity: .9; }
-    .buddy .lamp { transition: fill .4s; }
-    .buddy.boop .body-g { animation: boop .55s var(--ease); }
-    @keyframes boop {
-      0% { transform: scale(1, 1); } 30% { transform: scale(1.08, .9); } 60% { transform: scale(.95, 1.06); } 100% { transform: scale(1, 1); }
-    }
-    .buddy.idle .body-g { animation: idle 5s ease-in-out infinite; }
-    @keyframes idle { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.01, .995); } }
-    .buddy.idle.boop .body-g { animation: boop .55s var(--ease); }
-
-    /* ============ Video ============ */
-    .video-frame {
-      position: relative; margin: 3rem auto 0; max-width: 1000px; aspect-ratio: 16 / 9; border-radius: calc(var(--radius) + 6px);
-      overflow: hidden; background: #0c1426; box-shadow: var(--shadow); border: 1px solid var(--line);
-    }
-    .video-frame video { width: 100%; height: 100%; object-fit: cover; }
-    .play {
-      position: absolute; inset: 0; display: grid; place-items: center; border: 0; padding: 0; cursor: pointer;
-      background: linear-gradient(to top, rgba(0,0,0,.25), transparent 50%);
-    }
-    .play span {
-      width: 88px; height: 88px; border-radius: 50%; display: grid; place-items: center;
-      background: rgba(255,255,255,.22); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
-      border: 1px solid rgba(255,255,255,.35); transition: transform .3s var(--ease), background .3s;
-    }
-    .play:hover span, .play:focus-visible span { transform: scale(1.06); background: rgba(255,255,255,.32); }
-    .play svg { width: 30px; height: 30px; margin-left: 5px; fill: #fff; }
-    .play[hidden] { display: none; }
-    .video-placeholder {
-      position: absolute; inset: 0; display: grid; place-items: end center; padding: 1.4rem; text-align: center;
-      background: url(media/poster.svg) center / cover no-repeat; color: #eef3ff;
-    }
-    .video-placeholder p { background: rgba(0,0,0,.45); padding: .5rem 1rem; border-radius: 999px; font-size: .92rem; margin: 0; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
-    .video-placeholder[hidden] { display: none; }
-
-    /* ============ Karten ============ */
-    .grid { display: grid; gap: 1.1rem; margin-top: 3rem; }
-    @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (min-width: 1000px) { .grid.four { grid-template-columns: repeat(4, 1fr); } }
-    .card {
-      background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.7rem;
-      box-shadow: var(--shadow); transition: transform .4s var(--ease);
-    }
-    .card:hover { transform: translateY(-3px); }
-    .card p { color: var(--text-2); margin: 0; font-size: .98rem; }
-    .icon { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); margin-bottom: 1.1rem; }
-    .icon svg { width: 24px; height: 24px; }
-
-    /* ============ Buddy-Demo ============ */
-    .demo {
-      display: grid; gap: 2rem; align-items: center; margin-top: 3rem; padding: clamp(1.5rem, 4vw, 3rem);
-      background: var(--bg-elev); border: 1px solid var(--line); border-radius: calc(var(--radius) + 8px); box-shadow: var(--shadow);
-    }
-    @media (min-width: 860px) { .demo { grid-template-columns: 1fr 1fr; } }
-    .demo .buddy { width: min(340px, 72vw); margin-inline: auto; }
-    .control + .control { margin-top: 1.8rem; }
-    .control-label { font-weight: 600; margin-bottom: .7rem; display: block; }
-    fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
-    legend { padding: 0; }
-    .swatches { display: flex; flex-wrap: wrap; gap: .7rem; align-items: center; }
-    .swatch { position: relative; }
-    .swatch input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
-    .swatch span {
-      display: block; width: 40px; height: 40px; border-radius: 50%; background: var(--c);
-      box-shadow: inset 0 -4px 8px rgba(0,0,0,.18), inset 0 3px 6px rgba(255,255,255,.35); transition: transform .2s var(--ease);
-    }
-    .swatch input:checked + span { outline: 3px solid var(--text); outline-offset: 3px; }
-    .swatch input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 3px; }
-    .swatch:hover span { transform: scale(1.08); }
-    .custom-color { display: inline-flex; align-items: center; gap: .5rem; font-size: .92rem; color: var(--text-2); }
-    .custom-color input { width: 40px; height: 40px; border: 0; padding: 0; background: none; border-radius: 50%; cursor: pointer; }
-    .seg { display: inline-flex; flex-wrap: wrap; gap: .3rem; padding: .3rem; border-radius: 999px; background: var(--accent-soft); }
-    .seg button {
-      display: inline-flex; align-items: center; gap: .45rem; border: 0; background: none; font: inherit; font-size: .95rem; font-weight: 600;
-      color: var(--text-2); padding: .55rem 1rem; border-radius: 999px; cursor: pointer; min-height: 40px; transition: background .25s, color .25s;
-    }
-    .seg button[aria-pressed="true"] { background: var(--bg-elev); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-    .status-line { margin-top: 1.2rem; display: flex; align-items: center; gap: .6rem; color: var(--text-2); min-height: 1.6em; }
-    .hint { font-size: .9rem; color: var(--text-2); margin-top: 1.4rem; }
-
-    /* ============ Preise ============ */
-    .pricing { display: grid; gap: 1.1rem; margin-top: 3rem; }
-    @media (min-width: 760px) { .pricing { grid-template-columns: 1fr 1fr; } }
-    .plan { display: flex; flex-direction: column; }
-    .plan.pro { border: 2px solid var(--accent); }
-    .plan .price { font-size: 2rem; font-weight: 700; letter-spacing: -.02em; margin: .3rem 0 1.4rem; }
-    .plan .price small { font-size: .95rem; font-weight: 500; color: var(--text-2); }
-    .plan .btn { margin-top: auto; }
-    .badge { display: inline-block; font-size: .78rem; font-weight: 700; padding: .25rem .65rem; border-radius: 999px; background: var(--accent); color: var(--accent-ink); margin-left: .4rem; vertical-align: middle; }
-    .table-wrap { margin-top: 2.5rem; overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-elev); }
-    table { width: 100%; border-collapse: collapse; min-width: 460px; }
-    caption { text-align: left; padding: 1.2rem 1.4rem 0; font-weight: 600; }
-    th, td { padding: .95rem 1.4rem; text-align: left; border-bottom: 1px solid var(--line); }
-    tbody tr:last-child > * { border-bottom: 0; }
-    thead th { font-size: .9rem; color: var(--text-2); font-weight: 600; }
-    td:not(:first-child), thead th:not(:first-child) { text-align: center; width: 22%; }
-    .yes { color: var(--accent); font-weight: 700; }
-    .no { color: var(--text-2); }
-    th .desc { display: block; margin-top: .2rem; font-size: .85rem; font-weight: 400; color: var(--text-2); }
-    tbody td { font-size: .92rem; }
-
-    .price-options { list-style: none; padding: 0; margin: 0 0 1.4rem; display: grid; gap: .55rem; }
-    .price-options li { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: .7rem 1rem; border-radius: 14px; background: var(--accent-soft); }
-    .price-options strong { font-size: 1.15rem; letter-spacing: -.01em; white-space: nowrap; }
-    .price-options small { display: block; font-size: .82rem; color: var(--text-2); }
-
-    /* ============ Download-Dialog ============ */
-    .dl-dialog {
-      width: min(560px, 100% - 2rem); max-height: calc(100dvh - 2rem); overflow-y: auto; padding: 0; border: 1px solid var(--line);
-      border-radius: calc(var(--radius) + 6px); background: var(--bg-elev); color: var(--text); box-shadow: var(--shadow);
-    }
-    .dl-dialog::backdrop { background: rgba(8, 12, 16, .5); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
-    .dl-dialog form { padding: clamp(1.4rem, 4vw, 2.2rem); }
-    .dl-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
-    .dl-head h2 { font-size: 1.6rem; margin: 0; }
-    .dl-close { border: 0; background: var(--accent-soft); color: var(--text); width: 38px; height: 38px; border-radius: 50%; font-size: 1.3rem; line-height: 1; cursor: pointer; flex: none; }
-    .dl-step { margin-top: 1.6rem; }
-    .dl-step legend { font-weight: 600; margin-bottom: .7rem; }
-    .dl-step legend span { display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; margin-right: .45rem; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: .85rem; }
-    .choices { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
-    .choice { position: relative; }
-    .choice input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
-    .choice > span {
-      display: flex; flex-direction: column; gap: .15rem; height: 100%; padding: .95rem 1.1rem; border-radius: 16px;
-      border: 2px solid var(--line); transition: border-color .2s, background .2s;
-    }
-    .choice strong { font-size: 1.05rem; }
-    .choice small { color: var(--text-2); font-size: .85rem; }
-    .choice input:checked + span { border-color: var(--accent); background: var(--accent-soft); }
-    .choice input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 3px; }
-    .dl-step[hidden] { display: none; }
-    .dl-actions { margin-top: 1.8rem; display: flex; flex-direction: column; gap: .7rem; }
-    .dl-actions .btn { width: 100%; }
-    .dl-msg { margin: 0; font-size: .92rem; color: var(--text-2); text-align: center; min-height: 1.4em; }
-
-    /* ============ Roadmap ============ */
-    .roadmap { list-style: none; padding: 0; margin: 3rem 0 0; display: grid; gap: .8rem; }
-    @media (min-width: 640px) { .roadmap { grid-template-columns: repeat(2, 1fr); } }
-    @media (min-width: 1000px) { .roadmap { grid-template-columns: repeat(3, 1fr); } }
-    .roadmap li { display: flex; gap: .9rem; align-items: flex-start; padding: 1.1rem 1.3rem; border-radius: 18px; background: var(--bg-elev); border: 1px solid var(--line); }
-    .roadmap li::before { content: ""; flex: none; width: 10px; height: 10px; margin-top: .5em; border-radius: 50%; border: 2px solid var(--accent); }
-    .roadmap strong { display: block; }
-    .roadmap span { color: var(--text-2); font-size: .95rem; }
-
-    /* ============ FAQ ============ */
-    .faq { max-width: 760px; margin: 3rem auto 0; }
-    details { border-bottom: 1px solid var(--line); }
-    summary { cursor: pointer; list-style: none; padding: 1.3rem 2.2rem 1.3rem 0; font-weight: 600; font-size: 1.1rem; position: relative; }
-    summary::-webkit-details-marker { display: none; }
-    summary::after { content: "+"; position: absolute; right: .2rem; top: 50%; transform: translateY(-50%); font-size: 1.5rem; font-weight: 400; color: var(--accent); transition: transform .3s var(--ease); }
-    details[open] summary::after { transform: translateY(-50%) rotate(45deg); }
-    details p { color: var(--text-2); padding-bottom: 1.2rem; margin: 0; }
-
-    /* ============ CTA & Footer ============ */
-    .cta-final { padding-bottom: 6rem; }
-    footer { border-top: 1px solid var(--line); padding: 2.5rem 0 3rem; font-size: .92rem; color: var(--text-2); }
-    footer .wrap { display: flex; flex-wrap: wrap; gap: 1.2rem 2rem; align-items: center; justify-content: space-between; }
-    footer ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1.4rem; }
-    footer a { color: var(--text-2); text-decoration: none; }
-    footer a:hover { color: var(--text); text-decoration: underline; }
-
-    /* ============ Scroll-Reveal ============ */
-    .js .reveal { opacity: 0; transform: translateY(24px); transition: opacity .9s var(--ease), transform .9s var(--ease); }
-    .js .reveal.in { opacity: 1; transform: none; }
-
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
-      .js .reveal { opacity: 1; transform: none; }
-      .glow { transform: none !important; }
-    }
-  </style>
+  <link rel="stylesheet" href="/assets/pulo.css">
 </head>
 <body>
   <a class="skip" href="#main">Zum Inhalt springen</a>
@@ -412,13 +132,27 @@
 
   <header class="nav">
     <nav class="wrap" aria-label="Hauptnavigation">
-      <a class="logo" href="#top" aria-label="Pulo – zum Seitenanfang"><img src="favicon.svg" alt="" width="28" height="28">Pulo</a>
-      <ul>
-        <li><a href="#features">Features</a></li>
-        <li><a href="#video">Video</a></li>
-        <li><a href="#preise">Preise</a></li>
-      </ul>
-      <a class="btn btn-primary btn-small" href="#preise" data-download>Download</a>
+      <div class="nav-left">
+        <div class="lang" role="group" aria-label="Sprache">
+          <a href="/" hreflang="de" lang="de" aria-current="true" data-lang="de" aria-label="Deutsch">DE</a>
+          <a href="/en/" hreflang="en" lang="en" data-lang="en" aria-label="English">EN</a>
+        </div>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#start">Start</a></li>
+          <li><a href="#preise">Preise</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <a class="logo" href="#top" aria-label="Pulo – zum Seitenanfang"><img src="/favicon.svg" alt="" width="28" height="28">Pulo</a>
+      <div class="nav-right">
+        <button class="theme-toggle" type="button" id="theme-toggle" data-mode="system" aria-label="Design: wie System">
+          <svg class="i-system" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17A8.5 8.5 0 0 0 12 3.5z" fill="currentColor"/></svg>
+          <svg class="i-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="i-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+        </button>
+        <a class="btn btn-primary btn-small" href="#preise" data-download>Download</a>
+      </div>
     </nav>
   </header>
 
@@ -463,9 +197,9 @@
         <div class="video-frame">
           <!-- VIDEO: MP4 nach site/media/pulo-werbevideo.mp4 legen – oder die src-Zeile unten durch eine URL ersetzen.
                BORAN: Länge und Slogan aus dem Video ergänzen. Untertitel in media/pulo-untertitel-de.vtt pflegen. -->
-          <video id="promo" controls playsinline preload="metadata" poster="media/poster.svg" aria-describedby="video-h">
-            <source src="media/pulo-werbevideo.mp4" type="video/mp4">
-            <track kind="captions" srclang="de" label="Deutsch" src="media/pulo-untertitel-de.vtt" default>
+          <video id="promo" controls playsinline preload="metadata" poster="/media/poster.svg" aria-describedby="video-h">
+            <source src="/media/pulo-werbevideo.mp4" type="video/mp4">
+            <track kind="captions" srclang="de" label="Deutsch" src="/media/pulo-untertitel-de.vtt" default>
             Dein Browser kann dieses Video nicht abspielen.
           </video>
           <button class="play" type="button" id="play-btn" aria-label="Werbevideo abspielen">
@@ -508,6 +242,31 @@
             <p>Pulo blinzelt, schaut dir nach, reagiert aufs Antippen – und zeigt dir mit seiner Mimik, wie es deinem Server geht.</p>
           </article>
         </div>
+      </div>
+    </section>
+
+    <!-- ============ Schnellstart ============ -->
+    <section id="start" aria-labelledby="start-h">
+      <div class="wrap">
+        <div class="center reveal">
+          <p class="eyebrow">Schnellstart</p>
+          <h2 id="start-h">In 3 Schritten starten.</h2>
+          <p class="lead">Keine Konfigurationsdatei, kein Terminal. In einer Minute weißt du, wie es deinem Server geht.</p>
+        </div>
+        <ol class="steps">
+          <li class="card reveal">
+            <h3>Pulo laden</h3>
+            <p>Lade Pulo herunter und zieh die App in deinen Programme-Ordner. Du brauchst macOS 27 oder neuer.</p>
+          </li>
+          <li class="card reveal">
+            <h3>Server eintragen</h3>
+            <p>Gib die Adresse deines Servers ein, zum Beispiel <code>localhost:3000</code>, und starte die Prüfung.</p>
+          </li>
+          <li class="card reveal">
+            <h3>Buddy im Blick behalten</h3>
+            <p>Pulo zeigt dir den Status in Klartext. Läuft etwas schief, siehst du es an seiner Mimik.</p>
+          </li>
+        </ol>
       </div>
     </section>
 
@@ -606,19 +365,65 @@
         <div class="center reveal">
           <p class="eyebrow">Roadmap</p>
           <h2 id="roadmap-h">Was als Nächstes kommt.</h2>
-          <p class="lead">Pulo wächst. Das hier steht auf seiner Liste.</p>
+          <p class="lead">Pulo wächst. Darauf konzentrieren wir uns als Nächstes.</p>
         </div>
         <ul class="roadmap">
-          <li class="reveal"><div><strong>Request-Tester</strong><span>Anfragen direkt aus Pulo abschicken.</span></div></li>
-          <li class="reveal"><div><strong>Tiefenprüfung</strong><span>DNS, Port und TLS im Detail.</span></div></li>
-          <li class="reveal"><div><strong>Export</strong><span>Ergebnisse als PDF oder Markdown.</span></div></li>
+          <li class="wide reveal">
+            <div>
+              <strong>Windows-Version</strong>
+              <span>Pulo zieht auch auf Windows ein. Trag dich ein, dann sagen wir dir Bescheid, sobald es so weit ist.</span>
+              <form class="waitlist" id="waitlist" name="windows-warteliste" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                <input type="hidden" name="form-name" value="windows-warteliste">
+                <input type="hidden" name="sprache" value="de">
+                <label class="hp" aria-hidden="true">Nicht ausfüllen: <input name="bot-field" tabindex="-1" autocomplete="off"></label>
+                <label class="sr-only" for="waitlist-email">E-Mail-Adresse</label>
+                <input type="email" id="waitlist-email" name="email" placeholder="du@beispiel.de" autocomplete="email" required>
+                <button class="btn btn-primary" type="submit">Auf die Warteliste</button>
+              </form>
+              <p class="waitlist-msg" id="waitlist-msg" role="status" aria-live="polite"></p>
+            </div>
+          </li>
           <li class="reveal"><div><strong>Diagramme</strong><span>Verläufe sehen statt raten.</span></div></li>
-          <li class="reveal"><div><strong>Mini-Spiel</strong><span>Für die Wartezeit zwischen zwei Deploys.</span></div></li>
-          <li class="reveal"><div><strong>Streaks</strong><span>Wie lange läuft dein Server schon am Stück?</span></div></li>
-          <li class="reveal"><div><strong>Accessoires</strong><span>Hütchen, Brillen & Co. für deinen Buddy.</span></div></li>
-          <li class="reveal"><div><strong>Windows-Version</strong><span>Pulo zieht bald auch auf Windows ein.</span></div></li>
-          <li class="reveal"><div><strong>Login mit Google & Apple</strong><span>Anmelden mit einem Klick.</span></div></li>
+          <li class="reveal"><div><strong>Request-Tester</strong><span>Anfragen mit Header und Body direkt aus Pulo abschicken.</span></div></li>
+          <li class="reveal"><div><strong>Export</strong><span>Ergebnisse als PDF oder Markdown teilen.</span></div></li>
         </ul>
+      </div>
+    </section>
+
+    <!-- ============ Changelog ============ -->
+    <section id="changelog" aria-labelledby="changelog-h">
+      <div class="wrap">
+        <div class="center reveal">
+          <p class="eyebrow">Changelog</p>
+          <h2 id="changelog-h">Was sich geändert hat.</h2>
+          <p class="lead">Neue Funktionen und Verbesserungen, Version für Version.</p>
+        </div>
+        <!-- BORAN: PLATZHALTER – echte Versionen, Daten und Änderungen eintragen.
+             Neueste Version oben. Datum im Format <time datetime="JJJJ-MM-TT">. -->
+        <div class="changelog">
+          <article class="card reveal">
+            <header>
+              <h3>Version X.Y</h3>
+              <span class="date">Datum folgt</span>
+              <span class="tag">Platzhalter</span>
+            </header>
+            <ul>
+              <li>Neue Funktion folgt</li>
+              <li>Verbesserung folgt</li>
+              <li>Fehlerbehebung folgt</li>
+            </ul>
+          </article>
+          <article class="card reveal">
+            <header>
+              <h3>Version 1.0</h3>
+              <span class="date">Datum folgt</span>
+              <span class="tag">Platzhalter</span>
+            </header>
+            <ul>
+              <li>Erste Version von Pulo – Details folgen</li>
+            </ul>
+          </article>
+        </div>
       </div>
     </section>
 
@@ -639,12 +444,22 @@
             <p>Ja, es gibt eine kostenlose Version. Mit Pro bekommst du zusätzliche Funktionen – die Details findest du oben im Vergleich.</p>
           </details>
           <details>
+            <summary>Welche macOS-Version brauche ich?</summary>
+            <p>Pulo läuft ab macOS 27.</p>
+          </details>
+          <details>
             <summary>Gibt es Pulo für Windows?</summary>
-            <p>Noch nicht. Eine Windows-Version steht auf der Roadmap.</p>
+            <p>Noch nicht. Eine Windows-Version steht ganz oben auf der <a href="#roadmap">Roadmap</a> – trag dich dort in die Warteliste ein.</p>
           </details>
           <details>
             <summary>Wie steht es um den Datenschutz?</summary>
-            <p>Pulo prüft deine lokalen Server direkt von deinem Mac aus. Alle Details zu Konto und Daten findest du in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+            <p>Pulo prüft deine lokalen Server direkt von deinem Mac aus. Alle Details zu Konto und Daten findest du in der <a href="/datenschutz">Datenschutzerklärung</a>.</p>
+          </details>
+          <details>
+            <summary>Welche Daten verlassen meinen Mac?</summary>
+            <!-- BORAN: Falls Dienste wie Sentry oder Analytics eingebaut werden, hier ergänzen:
+                 dann kommen Fehlermeldungen sowie Geräte- und Nutzungsdaten dazu. -->
+            <p>Die Prüfungen deiner Server laufen lokal auf deinem Mac. Nur wenn du Pro kaufst, wird der Kauf über den App Store abgewickelt – dafür gelten die Datenschutzregeln von Apple.</p>
           </details>
         </div>
       </div>
@@ -667,8 +482,8 @@
       <span>© <span id="year">2026</span> Pulo</span>
       <nav aria-label="Rechtliches und Kontakt">
         <ul>
-          <li><a href="impressum.html">Impressum</a></li>
-          <li><a href="datenschutz.html">Datenschutz</a></li>
+          <li><a href="/impressum">Impressum</a></li>
+          <li><a href="/datenschutz">Datenschutz</a></li>
           <!-- BORAN: Kontaktadresse ergänzen -->
           <li><a href="mailto:kontakt@example.com">Kontakt</a></li>
         </ul>
@@ -712,206 +527,6 @@
     </form>
   </dialog>
 
-  <script>
-  (() => {
-    // ================= Konfiguration =================
-    // BORAN: Links eintragen. Der Download-Dialog leitet je nach Auswahl
-    // (System → Free/Pro → Zahlweise) auf den passenden Link weiter.
-    // Leer = im Dialog erscheint ein Hinweis, dass der Link bald folgt.
-    const LINKS = {
-      mac:     { free: "", monthly: "", yearly: "", lifetime: "" },
-      windows: { free: "", monthly: "", yearly: "", lifetime: "" }
-    };
-
-    document.documentElement.classList.add("js");
-    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
-    const canHover = matchMedia("(hover: hover) and (pointer: fine)");
-    const root = document.documentElement;
-    document.getElementById("year").textContent = new Date().getFullYear();
-
-    // ================= Download-Dialog =================
-    const dlg = document.getElementById("dl-dialog");
-    const dlForm = document.getElementById("dl-form");
-    const dlPlan = document.getElementById("dl-plan");
-    const dlMsg = document.getElementById("dl-msg");
-    const syncPlan = () => { dlPlan.hidden = dlForm.edition.value !== "pro"; dlMsg.textContent = ""; };
-    dlForm.addEventListener("change", syncPlan);
-    function openDownload(edition) {
-      if (typeof dlg.showModal !== "function") return false;
-      dlForm.edition.value = edition;
-      if (/Win/i.test(navigator.userAgent) && !/Mac/i.test(navigator.userAgent)) dlForm.os.value = "windows";
-      syncPlan();
-      dlg.showModal();
-      return true;
-    }
-    document.querySelectorAll("[data-download], [data-pro]").forEach(a => a.addEventListener("click", e => {
-      if (openDownload(a.hasAttribute("data-pro") ? "pro" : "free")) e.preventDefault();
-    }));
-    dlg.querySelector("[data-dl-close]").addEventListener("click", () => dlg.close());
-    dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
-    dlForm.addEventListener("submit", e => {
-      e.preventDefault();
-      const os = dlForm.os.value, edition = dlForm.edition.value;
-      const url = LINKS[os][edition === "pro" ? dlForm.plan.value : "free"];
-      if (url) { location.href = url; return; }
-      dlMsg.textContent = os === "windows"
-        ? "Die Windows-Version ist bald verfügbar – schau gern wieder vorbei."
-        : "Der Link folgt in Kürze.";
-    });
-
-    // ================= Buddy =================
-    const MOUTHS = {
-      happy:   "M122 199 Q144 212 166 199",
-      worried: "M124 204 Q134 198 144 204 Q154 210 164 204",
-      sad:     "M124 208 Q144 194 164 208",
-      wow:     "M134 204 Q144 190 154 204 Q144 218 134 204"
-    };
-    const LAMP = { ok: "var(--ok)", warn: "var(--warn)", bad: "var(--bad)" };
-    const tpl = document.getElementById("buddy-tpl");
-    const buddies = [...document.querySelectorAll("[data-buddy]")].map(el => {
-      el.appendChild(tpl.content.cloneNode(true));
-      const b = { el, svg: el.querySelector("svg"), pupils: [...el.querySelectorAll(".pupil")],
-                  mouth: el.querySelector(".mouth"), lamp: el.querySelector(".lamp"), mood: el.dataset.mood };
-      el.addEventListener("click", () => boop(b));
-      return b;
-    });
-
-    function setMood(b, mood) {
-      b.mood = mood; b.el.dataset.mood = mood;
-      b.mouth.setAttribute("d", MOUTHS[mood]);
-    }
-    function boop(b) {
-      b.el.classList.remove("boop"); void b.el.offsetWidth; b.el.classList.add("boop");
-      b.mouth.setAttribute("d", MOUTHS.wow);
-      clearTimeout(b.boopT);
-      b.boopT = setTimeout(() => { b.el.classList.remove("boop"); b.mouth.setAttribute("d", MOUTHS[b.mood]); }, 650);
-      blink(b);
-    }
-    function blink(b) {
-      b.el.classList.add("blink");
-      setTimeout(() => b.el.classList.remove("blink"), 130);
-    }
-    buddies.forEach(b => {
-      const loop = () => {
-        blink(b);
-        if (Math.random() < .2) setTimeout(() => blink(b), 260); // gelegentlich Doppel-Blinzeln
-        b.blinkT = setTimeout(loop, 2600 + Math.random() * 3200);
-      };
-      b.blinkT = setTimeout(loop, 1200 + Math.random() * 2000);
-    });
-
-    // Augen folgen dem Zeiger
-    function lookAt(b, x, y) {
-      const r = b.svg.getBoundingClientRect();
-      const s = r.width / 347; // viewBox "-29 0 347 347"
-      b.pupils.forEach((p, i) => {
-        const ex = r.left + ((i ? 184 : 104) + 29) * s, ey = r.top + 162 * s;
-        const dx = x - ex, dy = y - ey, d = Math.hypot(dx, dy) || 1;
-        const m = Math.min(8, d / 25);
-        p.style.transform = `translate(${(dx / d) * m}px, ${(dy / d) * m * .9}px)`;
-      });
-    }
-    let px = 0, py = 0, raf = 0;
-    addEventListener("pointermove", e => {
-      if (e.pointerType !== "mouse") return;
-      px = e.clientX; py = e.clientY;
-      if (!raf) raf = requestAnimationFrame(() => { raf = 0; buddies.forEach(b => lookAt(b, px, py)); });
-    }, { passive: true });
-
-    // Touch / kein Hover: sanfte Idle-Animation, Augen schweifen umher
-    function setupIdle() {
-      const idle = !canHover.matches && !reduceMotion.matches;
-      buddies.forEach(b => b.el.classList.toggle("idle", idle));
-      clearInterval(setupIdle.t);
-      if (!canHover.matches) {
-        const wander = () => buddies.forEach(b => {
-          const r = b.svg.getBoundingClientRect();
-          lookAt(b, r.left + r.width * Math.random(), r.top + r.height * (.2 + Math.random() * .7));
-        });
-        wander();
-        setupIdle.t = setInterval(wander, 3200);
-      }
-    }
-    setupIdle();
-    canHover.addEventListener("change", setupIdle);
-    reduceMotion.addEventListener("change", setupIdle);
-
-    // ================= Farbwähler =================
-    function setColor(c) {
-      root.style.setProperty("--buddy", c);
-      try { localStorage.setItem("pulo-color", c); } catch {}
-    }
-    const swatches = document.getElementById("swatches");
-    const custom = document.getElementById("custom-color");
-    swatches.addEventListener("change", e => {
-      if (e.target.name === "color") { setColor(e.target.value); custom.value = e.target.value; }
-    });
-    custom.addEventListener("input", () => {
-      swatches.querySelectorAll("input[name=color]").forEach(i => i.checked = false);
-      setColor(custom.value);
-    });
-    try {
-      const saved = localStorage.getItem("pulo-color");
-      if (saved) {
-        setColor(saved); custom.value = saved;
-        const match = swatches.querySelector(`input[value="${saved}"]`);
-        swatches.querySelectorAll("input[name=color]").forEach(i => i.checked = i === match);
-      }
-    } catch {}
-
-    // ================= Serverstatus-Demo =================
-    const STATUS = {
-      ok:   { mood: "happy",   text: "Alles bestens. Dein Server antwortet." },
-      warn: { mood: "worried", text: "Hm, dein Server antwortet – aber er lässt sich Zeit." },
-      bad:  { mood: "sad",     text: "Dein Server ist nicht erreichbar. Pulo ist traurig." }
-    };
-    const demo = buddies.find(b => b.el.id === "demo-buddy");
-    const line = document.getElementById("status-line");
-    document.querySelectorAll("[data-status]").forEach(btn => btn.addEventListener("click", () => {
-      const key = btn.dataset.status, s = STATUS[key];
-      document.querySelectorAll("[data-status]").forEach(o => o.setAttribute("aria-pressed", o === btn));
-      setMood(demo, s.mood);
-      demo.lamp.style.fill = LAMP[key];
-      line.innerHTML = `<span class="dot ${key === "ok" ? "" : key}"></span><span>${s.text}</span>`;
-    }));
-
-    // ================= Video =================
-    const video = document.getElementById("promo");
-    const playBtn = document.getElementById("play-btn");
-    const placeholder = document.getElementById("video-placeholder");
-    const source = video.querySelector("source");
-    const showPlaceholder = () => { placeholder.hidden = false; playBtn.hidden = true; video.hidden = true; };
-    source.addEventListener("error", showPlaceholder);
-    if (!source.getAttribute("src")) showPlaceholder();
-    playBtn.addEventListener("click", () => { video.play().catch(() => {}); video.focus(); });
-    video.addEventListener("play", () => playBtn.hidden = true);
-    video.addEventListener("ended", () => playBtn.hidden = false);
-
-    document.querySelectorAll("[data-watch]").forEach(a => a.addEventListener("click", e => {
-      e.preventDefault();
-      document.getElementById("video").scrollIntoView({ behavior: reduceMotion.matches ? "auto" : "smooth" });
-      if (!video.hidden) video.play().catch(() => {});
-      (video.hidden ? placeholder : video).setAttribute("tabindex", "-1");
-      (video.hidden ? placeholder : video).focus({ preventScroll: true });
-    }));
-
-    // ================= Scroll-Reveal & Parallax =================
-    const io = new IntersectionObserver(entries => entries.forEach(en => {
-      if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
-    }), { rootMargin: "0px 0px -8% 0px", threshold: .08 });
-    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
-
-    const par = [...document.querySelectorAll("[data-parallax]")];
-    let ticking = false;
-    addEventListener("scroll", () => {
-      if (reduceMotion.matches || ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        par.forEach(el => el.style.transform = `translate3d(0, ${scrollY * el.dataset.parallax}px, 0)`);
-        ticking = false;
-      });
-    }, { passive: true });
-  })();
-  </script>
+  <script src="/assets/pulo.js"></script>
 </body>
 </html>

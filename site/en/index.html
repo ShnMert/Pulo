@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pulo – Server Status Checker for Mac, with a Buddy</title>
+  <meta name="description" content="Pulo checks whether your local server is running and explains its status in plain language – with a friendly buddy in your Mac menu bar.">
+  <!-- FEHLT / MISSING: Autorname – sobald bekannt, in content="" eintragen. -->
+  <meta name="author" content="">
+  <link rel="canonical" href="https://puloo.netlify.app/en/">
+  <link rel="alternate" hreflang="de" href="https://puloo.netlify.app/">
+  <link rel="alternate" hreflang="en" href="https://puloo.netlify.app/en/">
+  <link rel="alternate" hreflang="x-default" href="https://puloo.netlify.app/en/">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f5f7f8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b1114" media="(prefers-color-scheme: dark)">
+  <script>try{var m=localStorage.getItem("pulo-theme");if(m==="light"||m==="dark")document.documentElement.dataset.theme=m}catch(e){}</script>
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Pulo">
+  <meta property="og:title" content="Pulo – Server Status Checker for Mac, with a Buddy">
+  <meta property="og:description" content="Pulo checks whether your local server is running and explains its status in plain language – with a friendly buddy in your Mac menu bar.">
+  <meta property="og:url" content="https://puloo.netlify.app/en/">
+  <meta property="og:image" content="https://puloo.netlify.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Pulo, the blue robot buddy, showing your server status">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="de_DE">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Pulo – Server Status Checker for Mac, with a Buddy">
+  <meta name="twitter:description" content="Pulo checks whether your local server is running and explains its status in plain language – with a friendly buddy in your Mac menu bar.">
+  <meta name="twitter:image" content="https://puloo.netlify.app/og-image.png">
+  <meta name="twitter:image:alt" content="Pulo, the blue robot buddy, showing your server status">
+
+  <!-- Icons -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-96.png" sizes="96x96" type="image/png">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <link rel="stylesheet" href="/assets/pulo.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <!-- Gemeinsame Verläufe für alle Buddys (Farbe folgt --buddy) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="pulo-body" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color: color-mix(in oklab, var(--buddy) 62%, white)"/>
+        <stop offset="1" style="stop-color: color-mix(in oklab, var(--buddy) 88%, black)"/>
+      </linearGradient>
+      <linearGradient id="pulo-side" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" style="stop-color: color-mix(in oklab, var(--buddy) 85%, white)"/>
+        <stop offset="1" style="stop-color: color-mix(in oklab, var(--buddy) 82%, black)"/>
+      </linearGradient>
+      <linearGradient id="pulo-ear" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color: color-mix(in oklab, var(--buddy) 72%, black)"/>
+        <stop offset="1" style="stop-color: color-mix(in oklab, var(--buddy) 56%, black)"/>
+      </linearGradient>
+      <linearGradient id="pulo-screen" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#0e141c"/>
+        <stop offset="1" stop-color="#171d28"/>
+      </linearGradient>
+      <radialGradient id="pulo-iris" cx=".4" cy=".35" r=".8">
+        <stop offset="0" style="stop-color: color-mix(in oklab, var(--buddy) 55%, white)"/>
+        <stop offset="1" style="stop-color: color-mix(in oklab, var(--buddy) 92%, black)"/>
+      </radialGradient>
+      <radialGradient id="pulo-shadow" cx="50%" cy="50%" r="50%">
+        <stop offset="0" stop-color="#000" stop-opacity=".28"/>
+        <stop offset="1" stop-color="#000" stop-opacity="0"/>
+      </radialGradient>
+      <clipPath id="pulo-eye-l"><circle cx="104" cy="162" r="26"/></clipPath>
+      <clipPath id="pulo-eye-r"><circle cx="184" cy="162" r="26"/></clipPath>
+    </defs>
+  </svg>
+
+  <!-- Buddy-Vorlage: wird per JS in jedes [data-buddy] geklont -->
+  <template id="buddy-tpl">
+    <svg viewBox="-29 0 347 347" aria-hidden="true" focusable="false">
+      <ellipse cx="144" cy="335" rx="88" ry="9" fill="url(#pulo-shadow)"/>
+      <g class="body-g">
+        <!-- Antenne -->
+        <rect x="139.5" y="48" width="6" height="36" rx="3" style="fill: color-mix(in oklab, var(--buddy) 88%, black)"/>
+        <circle cx="142.5" cy="43" r="9" fill="url(#pulo-body)"/>
+        <!-- Ohren -->
+        <rect x="22" y="146" width="30" height="56" rx="13" fill="url(#pulo-ear)"/>
+        <rect x="236" y="146" width="30" height="56" rx="13" fill="url(#pulo-ear)"/>
+        <!-- Füße -->
+        <ellipse cx="104" cy="322" rx="23" ry="12" style="fill: color-mix(in oklab, var(--buddy) 82%, black)"/>
+        <ellipse cx="184" cy="322" rx="23" ry="12" style="fill: color-mix(in oklab, var(--buddy) 82%, black)"/>
+        <!-- Arme -->
+        <rect x="58" y="240" width="30" height="66" rx="15" fill="url(#pulo-side)"/>
+        <rect x="200" y="240" width="30" height="66" rx="15" fill="url(#pulo-side)"/>
+        <!-- Körper mit Status-Licht -->
+        <rect x="86" y="228" width="116" height="88" rx="42" fill="url(#pulo-body)"/>
+        <circle class="lamp" cx="144" cy="273" r="12" style="fill: color-mix(in oklab, var(--buddy) 50%, white)"/>
+        <circle cx="141" cy="269" r="4.5" fill="#fff" opacity=".55"/>
+        <!-- Kopf & Bildschirm -->
+        <rect x="50" y="76" width="188" height="160" rx="62" fill="url(#pulo-body)"/>
+        <ellipse cx="92" cy="88" rx="26" ry="6" fill="#fff" opacity=".22" transform="rotate(-10 92 88)"/>
+        <rect x="62" y="90" width="164" height="134" rx="52" fill="url(#pulo-screen)"/>
+        <rect class="brow brow-l" x="85" y="118" width="38" height="7" rx="3.5" style="fill: color-mix(in oklab, var(--buddy) 55%, white)"/>
+        <rect class="brow brow-r" x="165" y="118" width="38" height="7" rx="3.5" style="fill: color-mix(in oklab, var(--buddy) 55%, white)"/>
+        <g class="eye">
+          <circle cx="104" cy="162" r="26" fill="#f4f7ff"/>
+          <g clip-path="url(#pulo-eye-l)"><g class="pupil">
+            <circle cx="106" cy="164" r="17" fill="url(#pulo-iris)"/><circle cx="107" cy="165" r="8" fill="#0c1118"/>
+            <circle cx="100" cy="157" r="4" fill="#fff"/><circle cx="112" cy="172" r="2" fill="#fff" opacity=".8"/>
+          </g></g>
+        </g>
+        <g class="eye">
+          <circle cx="184" cy="162" r="26" fill="#f4f7ff"/>
+          <g clip-path="url(#pulo-eye-r)"><g class="pupil">
+            <circle cx="182" cy="164" r="17" fill="url(#pulo-iris)"/><circle cx="181" cy="165" r="8" fill="#0c1118"/>
+            <circle cx="175" cy="157" r="4" fill="#fff"/><circle cx="187" cy="172" r="2" fill="#fff" opacity=".8"/>
+          </g></g>
+        </g>
+        <ellipse class="cheek" cx="79" cy="194" rx="9" ry="6" fill="#ff8fa3" opacity=".3"/>
+        <ellipse class="cheek" cx="209" cy="194" rx="9" ry="6" fill="#ff8fa3" opacity=".3"/>
+        <path class="tear" d="M90 192 q-7 14 0 19 q7 -5 0 -19z" fill="#9bdcff"/>
+        <path class="mouth" d="M122 199 Q144 212 166 199" stroke="#f4f7ff" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </template>
+
+  <header class="nav">
+    <nav class="wrap" aria-label="Main navigation">
+      <div class="nav-left">
+        <div class="lang" role="group" aria-label="Language">
+          <a href="/" hreflang="de" lang="de" data-lang="de" aria-label="Deutsch">DE</a>
+          <a href="/en/" hreflang="en" lang="en" aria-current="true" data-lang="en" aria-label="English">EN</a>
+        </div>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#start">Start</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <a class="logo" href="#top" aria-label="Pulo – back to top"><img src="/favicon.svg" alt="" width="28" height="28">Pulo</a>
+      <div class="nav-right">
+        <button class="theme-toggle" type="button" id="theme-toggle" data-mode="system" aria-label="Theme: match system">
+          <svg class="i-system" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17A8.5 8.5 0 0 0 12 3.5z" fill="currentColor"/></svg>
+          <svg class="i-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="i-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+        </button>
+        <a class="btn btn-primary btn-small" href="#pricing" data-download>Download</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- ============ Hero ============ -->
+    <section class="hero" id="top">
+      <div class="glow" data-parallax=".18" aria-hidden="true"></div>
+      <div class="wrap">
+        <div class="reveal">
+          <p class="eyebrow">For macOS</p>
+                    <h1>Is your server up? <span>Pulo knows.</span></h1>
+          <p class="lead">Pulo checks whether your local server is reachable – and tells you in plain language. With a little buddy who celebrates with you.</p>
+          <div class="btns">
+            <a class="btn btn-primary" href="#pricing" data-download>
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3a1 1 0 0 1 1 1v9.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.4l3.3 3.3V4a1 1 0 0 1 1-1zM5 19h14a1 1 0 1 1 0 2H5a1 1 0 1 1 0-2z"/></svg>
+              Get Pulo
+            </a>
+            <a class="btn btn-ghost" href="#video" data-watch>
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5z"/></svg>
+              Watch video
+            </a>
+          </div>
+          <p class="hero-note">Start for free. Go Pro when you want more.</p>
+        </div>
+        <div class="hero-stage reveal">
+          <button class="buddy" type="button" data-buddy data-mood="happy" aria-label="Pulo, the mascot. Tap to give him a boop."></button>
+          <div class="status-card" aria-hidden="true">
+            <span class="dot"></span>
+            <span><strong>Online</strong> <code>localhost</code></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Video ============ -->
+    <section id="video" aria-labelledby="video-h">
+      <div class="wrap center reveal">
+        <p class="eyebrow">Video</p>
+        <h2 id="video-h">Pulo in motion.</h2>
+        <p class="lead">Sit back – the buddy explains the rest.</p>
+        <div class="video-frame">
+          <!-- BORAN: Englische Untertitel als media/pulo-untertitel-en.vtt ergänzen und hier als default-Track eintragen. -->
+          <video id="promo" controls playsinline preload="metadata" poster="/media/poster.svg" aria-describedby="video-h">
+            <source src="/media/pulo-werbevideo.mp4" type="video/mp4">
+            <track kind="captions" srclang="de" label="Deutsch (German)" src="/media/pulo-untertitel-de.vtt">
+            Your browser can't play this video.
+          </video>
+          <button class="play" type="button" id="play-btn" aria-label="Play video">
+            <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5v15a1 1 0 0 0 1.5.86l13-7.5a1 1 0 0 0 0-1.72l-13-7.5A1 1 0 0 0 6 4.5z"/></svg></span>
+          </button>
+          <div class="video-placeholder" id="video-placeholder" hidden>
+            <p>The video is almost here. Pulo is still polishing his antenna.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Features ============ -->
+    <section id="features" aria-labelledby="features-h">
+      <div class="wrap">
+        <div class="center reveal">
+          <p class="eyebrow">Features</p>
+          <h2 id="features-h">Diagnostics without terminal fiddling.</h2>
+          <p class="lead">Everything you need to know at a glance. Pulo handles the rest.</p>
+        </div>
+        <div class="grid four">
+          <article class="card reveal">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <h3>Server check</h3>
+            <p>Is your local server reachable? Pulo tells you – green, yellow or red, in full sentences.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
+            <h3>Continuous monitoring</h3>
+            <p>Pulo keeps an eye on your server while you keep working in peace.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/><circle cx="17" cy="6.5" r=".6" fill="currentColor"/></svg></div>
+            <h3>Menu bar</h3>
+            <p>The status lives up in the menu bar. One glance is enough – no window needed.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><circle cx="9.5" cy="12" r="1" fill="currentColor"/><circle cx="14.5" cy="12" r="1" fill="currentColor"/><path d="M9.5 16c1.4 1 3.6 1 5 0M12 5V2"/></svg></div>
+            <h3>Your buddy</h3>
+            <p>Pulo blinks, follows you with his eyes, reacts when you tap him – and shows you with his face how your server is doing.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Schnellstart ============ -->
+    <section id="start" aria-labelledby="start-h">
+      <div class="wrap">
+        <div class="center reveal">
+          <p class="eyebrow">Quick start</p>
+          <h2 id="start-h">Get started in 3 steps.</h2>
+          <p class="lead">No config file, no terminal. In a minute you'll know how your server is doing.</p>
+        </div>
+        <ol class="steps">
+          <li class="card reveal">
+            <h3>Download Pulo</h3>
+            <p>Download Pulo and drag the app into your Applications folder. You need macOS 27 or later.</p>
+          </li>
+          <li class="card reveal">
+            <h3>Add your server</h3>
+            <p>Enter your server's address, for example <code>localhost:3000</code>, and start the check.</p>
+          </li>
+          <li class="card reveal">
+            <h3>Keep an eye on your buddy</h3>
+            <p>Pulo shows you the status in plain language. If something goes wrong, you'll see it on his face.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ Buddy-Demo ============ -->
+    <section id="buddy" aria-labelledby="buddy-h">
+      <div class="wrap">
+        <div class="center reveal">
+          <p class="eyebrow">Meet Pulo</p>
+          <h2 id="buddy-h">Give him a try.</h2>
+          <p class="lead">Move your mouse, tap him, give him a new color. He doesn't mind.</p>
+        </div>
+        <div class="demo reveal">
+          <button class="buddy" type="button" data-buddy data-mood="happy" id="demo-buddy" aria-label="Demo Pulo. Tap to give him a boop."></button>
+          <div>
+            <fieldset class="control">
+              <legend class="control-label">Buddy color</legend>
+              <div class="swatches" id="swatches">
+                <label class="swatch"><input type="radio" name="color" value="#4f7ff0" checked><span style="--c:#4f7ff0"></span><span class="sr-only">Blue</span></label>
+                <label class="swatch"><input type="radio" name="color" value="#14a3a8"><span style="--c:#14a3a8"></span><span class="sr-only">Teal</span></label>
+                <label class="swatch"><input type="radio" name="color" value="#8b5cf6"><span style="--c:#8b5cf6"></span><span class="sr-only">Violet</span></label>
+                <label class="swatch"><input type="radio" name="color" value="#ec6a9c"><span style="--c:#ec6a9c"></span><span class="sr-only">Pink</span></label>
+                <label class="swatch"><input type="radio" name="color" value="#f59e0b"><span style="--c:#f59e0b"></span><span class="sr-only">Orange</span></label>
+                <label class="swatch"><input type="radio" name="color" value="#22a55a"><span style="--c:#22a55a"></span><span class="sr-only">Green</span></label>
+                <label class="custom-color"><input type="color" id="custom-color" value="#4f7ff0">Custom</label>
+              </div>
+            </fieldset>
+            <div class="control">
+              <span class="control-label" id="status-label">Simulate server status</span>
+              <div class="seg" role="group" aria-labelledby="status-label">
+                <button type="button" data-status="ok" aria-pressed="true"><span class="dot"></span>Online</button>
+                <button type="button" data-status="warn" aria-pressed="false"><span class="dot warn"></span>Slow</button>
+                <button type="button" data-status="bad" aria-pressed="false"><span class="dot bad"></span>Offline</button>
+              </div>
+              <p class="status-line" id="status-line" aria-live="polite"><span class="dot"></span><span>All good. Your server is responding.</span></p>
+            </div>
+            <p class="hint">Tip: Works with the keyboard too – Tab to Pulo, then press Space.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Preise ============ -->
+    <section id="pricing" aria-labelledby="pricing-h">
+      <div class="wrap">
+        <div class="center reveal">
+          <p class="eyebrow">Free & Pro</p>
+          <h2 id="pricing-h">Start small. Turn it up.</h2>
+          <p class="lead">Free covers the quick check. Pro, when you want Pulo to think ahead for you.</p>
+        </div>
+        <div class="pricing">
+          <article class="card plan reveal">
+            <h3>Free</h3>
+            <p>The quick server check for in between.</p>
+            <p class="price">€0</p>
+            <a class="btn btn-ghost" href="#pricing" data-download>Get Pulo</a>
+          </article>
+          <article class="card plan pro reveal">
+            <h3>Pro <span class="badge">Recommended</span></h3>
+            <p>For everyone who never wants to lose sight of their server again.</p>
+            <p class="price">from €2.50 <small>/ month</small></p>
+            <ul class="price-options">
+              <li><span>Monthly</span><strong>€3.99</strong></li>
+              <li><span>Yearly<small>about €2.50 per month</small></span><strong>€29.99</strong></li>
+              <li><span>One-time purchase (lifetime)<small>Pay once, Pro forever</small></span><strong>€49</strong></li>
+            </ul>
+            <a class="btn btn-primary" href="#pricing" data-pro>Get Pro</a>
+          </article>
+        </div>
+        <div class="table-wrap reveal">
+          <table>
+            <caption>Free and Pro compared</caption>
+            <thead><tr><th scope="col">Feature</th><th scope="col">Free</th><th scope="col">Pro</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Basic diagnostics<small class="desc">Check localhost and port reachability, status code explained</small></th><td><span class="yes" aria-label="included">✓</span></td><td><span class="yes" aria-label="included">✓</span></td></tr>
+              <tr><th scope="row">Buddy basics<small class="desc">Facial expressions, reactions, 360° view</small></th><td><span class="yes" aria-label="included">✓</span></td><td><span class="yes" aria-label="included">✓</span></td></tr>
+              <tr><th scope="row">Buddy colors</th><td>Blue, mint, pink</td><td>All</td></tr>
+              <tr><th scope="row">Ninja look</th><td><span class="yes" aria-label="included">✓</span></td><td><span class="yes" aria-label="included">✓</span></td></tr>
+              <tr><th scope="row">History</th><td>Last 5 checks</td><td>Unlimited</td></tr>
+              <tr><th scope="row">Dark/light mode & accessibility</th><td><span class="yes" aria-label="included">✓</span></td><td><span class="yes" aria-label="included">✓</span></td></tr>
+              <tr><th scope="row">Continuous monitoring in the menu bar<small class="desc">With a notification when a server goes down</small></th><td><span class="no" aria-label="not included">–</span></td><td><span class="yes" aria-label="included">✓</span></td></tr>
+              <tr><th scope="row">Monitored servers</th><td>1–2</td><td>Several at once</td></tr>
+              <tr><th scope="row">Deep check<small class="desc">DNS, port scan, TLS certificate with expiry warning</small></th><td><span class="no" aria-label="not included">–</span></td><td><span class="yes" aria-label="included">✓</span></td></tr>
+              <tr><th scope="row">Request tester<small class="desc">Custom requests with headers and body, saved requests</small></th><td><span class="no" aria-label="not included">–</span></td><td><span class="yes" aria-label="included">✓</span></td></tr>
+              <tr><th scope="row">Export as PDF & Markdown</th><td><span class="no" aria-label="not included">–</span></td><td><span class="yes" aria-label="included">✓</span></td></tr>
+              <tr><th scope="row">Charts<small class="desc">History with Swift Charts</small></th><td><span class="no" aria-label="not included">–</span></td><td><span class="yes" aria-label="included">✓</span></td></tr>
+              <tr><th scope="row">Buddy extras<small class="desc">All accessories, mini game, streaks</small></th><td><span class="no" aria-label="not included">–</span></td><td><span class="yes" aria-label="included">✓</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Roadmap ============ -->
+    <section id="roadmap" aria-labelledby="roadmap-h">
+      <div class="wrap">
+        <div class="center reveal">
+          <p class="eyebrow">Roadmap</p>
+          <h2 id="roadmap-h">What's next.</h2>
+          <p class="lead">Pulo is growing. This is what we're focusing on next.</p>
+        </div>
+        <ul class="roadmap">
+          <li class="wide reveal">
+            <div>
+              <strong>Windows version</strong>
+              <span>Pulo is coming to Windows. Sign up and we'll let you know as soon as it's ready.</span>
+              <form class="waitlist" id="waitlist" name="windows-warteliste" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                <input type="hidden" name="form-name" value="windows-warteliste">
+                <input type="hidden" name="sprache" value="en">
+                <label class="hp" aria-hidden="true">Don't fill this out: <input name="bot-field" tabindex="-1" autocomplete="off"></label>
+                <label class="sr-only" for="waitlist-email">Email address</label>
+                <input type="email" id="waitlist-email" name="email" placeholder="you@example.com" autocomplete="email" required>
+                <button class="btn btn-primary" type="submit">Join the waitlist</button>
+              </form>
+              <p class="waitlist-msg" id="waitlist-msg" role="status" aria-live="polite"></p>
+            </div>
+          </li>
+          <li class="reveal"><div><strong>Charts</strong><span>See your history instead of guessing.</span></div></li>
+          <li class="reveal"><div><strong>Request tester</strong><span>Send requests with headers and body straight from Pulo.</span></div></li>
+          <li class="reveal"><div><strong>Export</strong><span>Share results as PDF or Markdown.</span></div></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ Changelog ============ -->
+    <section id="changelog" aria-labelledby="changelog-h">
+      <div class="wrap">
+        <div class="center reveal">
+          <p class="eyebrow">Changelog</p>
+          <h2 id="changelog-h">What's changed.</h2>
+          <p class="lead">New features and improvements, version by version.</p>
+        </div>
+        <!-- BORAN: PLATZHALTER – echte Versionen, Daten und Änderungen eintragen.
+             Neueste Version oben. Datum im Format <time datetime="JJJJ-MM-TT">. -->
+        <div class="changelog">
+          <article class="card reveal">
+            <header>
+              <h3>Version X.Y</h3>
+              <span class="date">Date to follow</span>
+              <span class="tag">Placeholder</span>
+            </header>
+            <ul>
+              <li>New feature to follow</li>
+              <li>Improvement to follow</li>
+              <li>Bug fix to follow</li>
+            </ul>
+          </article>
+          <article class="card reveal">
+            <header>
+              <h3>Version 1.0</h3>
+              <span class="date">Date to follow</span>
+              <span class="tag">Placeholder</span>
+            </header>
+            <ul>
+              <li>First release of Pulo – details to follow</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section id="faq" aria-labelledby="faq-h">
+      <div class="wrap">
+        <div class="center reveal">
+          <p class="eyebrow">FAQ</p>
+          <h2 id="faq-h">Quick answers.</h2>
+        </div>
+        <div class="faq reveal">
+          <details>
+            <summary>What is Pulo?</summary>
+            <p>Pulo is a macOS app that checks whether your local server is reachable and shows you the status in plain language. The buddy of the same name shows you with his face how your server is doing.</p>
+          </details>
+          <details>
+            <summary>Is Pulo free?</summary>
+            <p>Yes, there's a free version. Pro gives you extra features – see the comparison above for details.</p>
+          </details>
+          <details>
+            <summary>Which macOS version do I need?</summary>
+            <p>Pulo runs on macOS 27 or later.</p>
+          </details>
+          <details>
+            <summary>Is Pulo available for Windows?</summary>
+            <p>Not yet. A Windows version is at the top of the <a href="#roadmap">roadmap</a> – join the waitlist there.</p>
+          </details>
+          <details>
+            <summary>What about privacy?</summary>
+            <p>Pulo checks your local servers directly from your Mac. You'll find all details about accounts and data in the <a href="/datenschutz" hreflang="de">privacy policy</a> (German).</p>
+          </details>
+          <details>
+            <summary>What data leaves my Mac?</summary>
+            <!-- BORAN: Falls Dienste wie Sentry oder Analytics eingebaut werden, hier ergänzen:
+                 dann kommen Fehlermeldungen sowie Geräte- und Nutzungsdaten dazu. -->
+            <p>Your server checks run locally on your Mac. Only when you buy Pro is the purchase handled through the App Store – Apple's privacy rules apply to that.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-final" aria-labelledby="cta-h">
+      <div class="wrap center reveal">
+        <h2 id="cta-h">Ready for your new buddy?</h2>
+        <p class="lead">Get Pulo, check your server, keep working relaxed.</p>
+        <div class="btns" style="margin-top:1.6rem">
+          <a class="btn btn-primary" href="#pricing" data-download>Get Pulo</a>
+          <a class="btn btn-ghost" href="#pricing" data-pro>Get Pro</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© <span id="year">2026</span> Pulo</span>
+      <nav aria-label="Legal and contact">
+        <ul>
+          <li><a href="/impressum" hreflang="de">Legal notice</a></li>
+          <li><a href="/datenschutz" hreflang="de">Privacy</a></li>
+          <!-- BORAN: Kontaktadresse ergänzen -->
+          <li><a href="mailto:kontakt@example.com">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- ============ Download-Dialog ============ -->
+  <dialog class="dl-dialog" id="dl-dialog" aria-labelledby="dl-title">
+    <form method="dialog" id="dl-form">
+      <div class="dl-head">
+        <h2 id="dl-title">Get Pulo</h2>
+        <button class="dl-close" type="button" data-dl-close aria-label="Close">×</button>
+      </div>
+      <fieldset class="dl-step">
+        <legend><span>1</span>Which system?</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="os" value="mac" checked><span><strong>macOS</strong><small>For your Mac</small></span></label>
+          <label class="choice"><input type="radio" name="os" value="windows"><span><strong>Windows</strong><small>For your PC</small></span></label>
+        </div>
+      </fieldset>
+      <fieldset class="dl-step">
+        <legend><span>2</span>Free or Pro?</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="edition" value="free" checked><span><strong>Free</strong><small>€0 – the quick check</small></span></label>
+          <label class="choice"><input type="radio" name="edition" value="pro"><span><strong>Pro</strong><small>from €2.50 / month</small></span></label>
+        </div>
+      </fieldset>
+      <fieldset class="dl-step" id="dl-plan" hidden>
+        <legend><span>3</span>How would you like to pay for Pro?</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="plan" value="monthly"><span><strong>€3.99</strong><small>Monthly</small></span></label>
+          <label class="choice"><input type="radio" name="plan" value="yearly" checked><span><strong>€29.99</strong><small>Yearly · approx. €2.50/month</small></span></label>
+          <label class="choice"><input type="radio" name="plan" value="lifetime"><span><strong>€49</strong><small>One-time purchase (lifetime)</small></span></label>
+        </div>
+      </fieldset>
+      <div class="dl-actions">
+        <button class="btn btn-primary" type="submit">Continue</button>
+        <p class="dl-msg" id="dl-msg" role="status" aria-live="polite"></p>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/assets/pulo.js"></script>
+</body>
+</html>
