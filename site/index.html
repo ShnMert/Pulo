@@ -14,7 +14,7 @@
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#f5f7f8" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0b1114" media="(prefers-color-scheme: dark)">
-  <script>try{var m=localStorage.getItem("pulo-theme");if(m==="light"||m==="dark")document.documentElement.dataset.theme=m}catch(e){}</script>
+  <script>document.documentElement.classList.add("js");try{var m=localStorage.getItem("pulo-theme");if(m==="light"||m==="dark")document.documentElement.dataset.theme=m}catch(e){}</script>
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
@@ -45,6 +45,8 @@
   <link rel="manifest" href="/site.webmanifest">
 
   <link rel="stylesheet" href="/assets/pulo.css">
+  <!-- Andere Sprachversion vorab laden, damit der Wechsel ohne Flackern passiert -->
+  <script type="speculationrules">{"prerender":[{"where":{"selector_matches":".lang a"},"eagerness":"moderate"}],"prefetch":[{"where":{"selector_matches":".lang a"},"eagerness":"eager"}]}</script>
 </head>
 <body>
   <a class="skip" href="#main">Zum Inhalt springen</a>
