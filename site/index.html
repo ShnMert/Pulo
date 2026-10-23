@@ -20,12 +20,12 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <style>
     /* ============ Design-Tokens ============
-       BORAN: Hauptfarbe von Pulo hier eintragen (--accent / --buddy). Türkis ist Platzhalter. */
+       Hauptfarbe von Pulo: Blau (--accent / --buddy). */
     :root {
-      --buddy: #14a3a8;
-      --accent: #0a7a80;          /* Text/Buttons auf Hell: AA-Kontrast */
+      --buddy: #4f7ff0;
+      --accent: #2f5fd6;          /* Text/Buttons auf Hell: AA-Kontrast */
       --accent-ink: #ffffff;
-      --accent-soft: rgba(20, 163, 168, .12);
+      --accent-soft: rgba(79, 127, 240, .12);
       --bg: #f5f7f8;
       --bg-elev: #ffffff;
       --text: #10181c;
@@ -40,9 +40,9 @@
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --accent: #4fd6d9;
-        --accent-ink: #062326;
-        --accent-soft: rgba(79, 214, 217, .12);
+        --accent: #8fb0ff;
+        --accent-ink: #0a1633;
+        --accent-soft: rgba(143, 176, 255, .14);
         --bg: #0b1114;
         --bg-elev: #131b1f;
         --text: #eef3f4;
@@ -138,18 +138,17 @@
       -webkit-tap-highlight-color: transparent; border-radius: 40%;
     }
     .buddy svg { width: 100%; height: 100%; overflow: visible; }
-    .buddy .body-g { transform-origin: 100px 178px; transform-box: view-box; }
+    .buddy .body-g { transform-origin: 50% 97%; transform-box: fill-box; }
     .buddy .eye { transform-box: fill-box; transform-origin: center; transition: transform .09s ease-in; }
     .buddy.blink .eye { transform: scaleY(.08); }
     .buddy .pupil { transition: transform .12s linear; }
-    .buddy .brow { opacity: 0; transition: opacity .3s, transform .3s; transform-box: fill-box; transform-origin: center; }
-    .buddy[data-mood="worried"] .brow, .buddy[data-mood="sad"] .brow { opacity: 1; }
+    .buddy .brow { transition: transform .3s; transform-box: fill-box; transform-origin: center; }
     .buddy[data-mood="sad"] .brow-l { transform: rotate(14deg) translateY(-2px); }
     .buddy[data-mood="sad"] .brow-r { transform: rotate(-14deg) translateY(-2px); }
     .buddy[data-mood="worried"] .brow-l { transform: rotate(-8deg); }
     .buddy[data-mood="worried"] .brow-r { transform: rotate(8deg); }
     .buddy .cheek { transition: opacity .3s; }
-    .buddy[data-mood="sad"] .cheek { opacity: .15; }
+    .buddy[data-mood="sad"] .cheek { opacity: .1; }
     .buddy .mouth { transition: d .3s var(--ease); }
     .buddy .tear { opacity: 0; transition: opacity .4s; }
     .buddy[data-mood="sad"] .tear { opacity: .9; }
@@ -159,13 +158,13 @@
       0% { transform: scale(1, 1); } 30% { transform: scale(1.08, .9); } 60% { transform: scale(.95, 1.06); } 100% { transform: scale(1, 1); }
     }
     .buddy.idle .body-g { animation: idle 5s ease-in-out infinite; }
-    @keyframes idle { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.01, .995); } }
+    @keyframes idle { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.01, .995); } }
     .buddy.idle.boop .body-g { animation: boop .55s var(--ease); }
 
     /* ============ Video ============ */
     .video-frame {
       position: relative; margin: 3rem auto 0; max-width: 1000px; aspect-ratio: 16 / 9; border-radius: calc(var(--radius) + 6px);
-      overflow: hidden; background: #0c1f26; box-shadow: var(--shadow); border: 1px solid var(--line);
+      overflow: hidden; background: #0c1426; box-shadow: var(--shadow); border: 1px solid var(--line);
     }
     .video-frame video { width: 100%; height: 100%; object-fit: cover; }
     .play {
@@ -182,7 +181,7 @@
     .play[hidden] { display: none; }
     .video-placeholder {
       position: absolute; inset: 0; display: grid; place-items: end center; padding: 1.4rem; text-align: center;
-      background: url(media/poster.svg) center / cover no-repeat; color: #e8f6f6;
+      background: url(media/poster.svg) center / cover no-repeat; color: #eef3ff;
     }
     .video-placeholder p { background: rgba(0,0,0,.45); padding: .5rem 1rem; border-radius: 999px; font-size: .92rem; margin: 0; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
     .video-placeholder[hidden] { display: none; }
@@ -295,41 +294,80 @@
   <!-- Gemeinsame Verläufe für alle Buddys (Farbe folgt --buddy) -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
     <defs>
-      <radialGradient id="pulo-body" cx="36%" cy="28%" r="78%">
-        <stop offset="0" style="stop-color: color-mix(in oklab, var(--buddy) 45%, white)"/>
-        <stop offset=".55" style="stop-color: var(--buddy)"/>
-        <stop offset="1" style="stop-color: color-mix(in oklab, var(--buddy) 62%, black)"/>
+      <linearGradient id="pulo-body" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color: color-mix(in oklab, var(--buddy) 62%, white)"/>
+        <stop offset="1" style="stop-color: color-mix(in oklab, var(--buddy) 88%, black)"/>
+      </linearGradient>
+      <linearGradient id="pulo-side" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" style="stop-color: color-mix(in oklab, var(--buddy) 85%, white)"/>
+        <stop offset="1" style="stop-color: color-mix(in oklab, var(--buddy) 82%, black)"/>
+      </linearGradient>
+      <linearGradient id="pulo-ear" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color: color-mix(in oklab, var(--buddy) 72%, black)"/>
+        <stop offset="1" style="stop-color: color-mix(in oklab, var(--buddy) 56%, black)"/>
+      </linearGradient>
+      <linearGradient id="pulo-screen" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#0e141c"/>
+        <stop offset="1" stop-color="#171d28"/>
+      </linearGradient>
+      <radialGradient id="pulo-iris" cx=".4" cy=".35" r=".8">
+        <stop offset="0" style="stop-color: color-mix(in oklab, var(--buddy) 55%, white)"/>
+        <stop offset="1" style="stop-color: color-mix(in oklab, var(--buddy) 92%, black)"/>
       </radialGradient>
       <radialGradient id="pulo-shadow" cx="50%" cy="50%" r="50%">
         <stop offset="0" stop-color="#000" stop-opacity=".28"/>
         <stop offset="1" stop-color="#000" stop-opacity="0"/>
       </radialGradient>
+      <clipPath id="pulo-eye-l"><circle cx="104" cy="162" r="26"/></clipPath>
+      <clipPath id="pulo-eye-r"><circle cx="184" cy="162" r="26"/></clipPath>
     </defs>
   </svg>
 
   <!-- Buddy-Vorlage: wird per JS in jedes [data-buddy] geklont -->
   <template id="buddy-tpl">
-    <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
-      <ellipse cx="100" cy="184" rx="62" ry="9" fill="url(#pulo-shadow)"/>
+    <svg viewBox="-29 0 347 347" aria-hidden="true" focusable="false">
+      <ellipse cx="144" cy="335" rx="88" ry="9" fill="url(#pulo-shadow)"/>
       <g class="body-g">
-        <path d="M100 32 C104 22 104 16 100 12" style="stroke: color-mix(in oklab, var(--buddy) 62%, black)" stroke-width="4" fill="none" stroke-linecap="round"/>
-        <circle class="lamp" cx="100" cy="10" r="6.5" style="fill: var(--ok)"/>
-        <path d="M100 30 C150 30 172 70 172 112 C172 156 140 178 100 178 C60 178 28 156 28 112 C28 70 50 30 100 30Z" fill="url(#pulo-body)"/>
-        <ellipse cx="76" cy="56" rx="26" ry="13" fill="#fff" opacity=".28" transform="rotate(-18 76 56)"/>
-        <ellipse class="cheek" cx="58" cy="124" rx="11" ry="6.5" fill="#ff8fa3" opacity=".45"/>
-        <ellipse class="cheek" cx="142" cy="124" rx="11" ry="6.5" fill="#ff8fa3" opacity=".45"/>
-        <path class="brow brow-l" d="M66 72 L90 72" stroke="#10202a" stroke-width="4" stroke-linecap="round"/>
-        <path class="brow brow-r" d="M110 72 L134 72" stroke="#10202a" stroke-width="4" stroke-linecap="round"/>
+        <!-- Antenne -->
+        <rect x="139.5" y="48" width="6" height="36" rx="3" style="fill: color-mix(in oklab, var(--buddy) 88%, black)"/>
+        <circle cx="142.5" cy="43" r="9" fill="url(#pulo-body)"/>
+        <!-- Ohren -->
+        <rect x="22" y="146" width="30" height="56" rx="13" fill="url(#pulo-ear)"/>
+        <rect x="236" y="146" width="30" height="56" rx="13" fill="url(#pulo-ear)"/>
+        <!-- Füße -->
+        <ellipse cx="104" cy="322" rx="23" ry="12" style="fill: color-mix(in oklab, var(--buddy) 82%, black)"/>
+        <ellipse cx="184" cy="322" rx="23" ry="12" style="fill: color-mix(in oklab, var(--buddy) 82%, black)"/>
+        <!-- Arme -->
+        <rect x="58" y="240" width="30" height="66" rx="15" fill="url(#pulo-side)"/>
+        <rect x="200" y="240" width="30" height="66" rx="15" fill="url(#pulo-side)"/>
+        <!-- Körper mit Status-Licht -->
+        <rect x="86" y="228" width="116" height="88" rx="42" fill="url(#pulo-body)"/>
+        <circle class="lamp" cx="144" cy="273" r="12" style="fill: color-mix(in oklab, var(--buddy) 50%, white)"/>
+        <circle cx="141" cy="269" r="4.5" fill="#fff" opacity=".55"/>
+        <!-- Kopf & Bildschirm -->
+        <rect x="50" y="76" width="188" height="160" rx="62" fill="url(#pulo-body)"/>
+        <ellipse cx="92" cy="88" rx="26" ry="6" fill="#fff" opacity=".22" transform="rotate(-10 92 88)"/>
+        <rect x="62" y="90" width="164" height="134" rx="52" fill="url(#pulo-screen)"/>
+        <rect class="brow brow-l" x="85" y="118" width="38" height="7" rx="3.5" style="fill: color-mix(in oklab, var(--buddy) 55%, white)"/>
+        <rect class="brow brow-r" x="165" y="118" width="38" height="7" rx="3.5" style="fill: color-mix(in oklab, var(--buddy) 55%, white)"/>
         <g class="eye">
-          <ellipse cx="78" cy="98" rx="14" ry="17" fill="#fff"/>
-          <g class="pupil"><circle cx="78" cy="100" r="8.5" fill="#10202a"/><circle cx="81" cy="96" r="2.6" fill="#fff"/></g>
+          <circle cx="104" cy="162" r="26" fill="#f4f7ff"/>
+          <g clip-path="url(#pulo-eye-l)"><g class="pupil">
+            <circle cx="106" cy="164" r="17" fill="url(#pulo-iris)"/><circle cx="107" cy="165" r="8" fill="#0c1118"/>
+            <circle cx="100" cy="157" r="4" fill="#fff"/><circle cx="112" cy="172" r="2" fill="#fff" opacity=".8"/>
+          </g></g>
         </g>
         <g class="eye">
-          <ellipse cx="122" cy="98" rx="14" ry="17" fill="#fff"/>
-          <g class="pupil"><circle cx="122" cy="100" r="8.5" fill="#10202a"/><circle cx="125" cy="96" r="2.6" fill="#fff"/></g>
+          <circle cx="184" cy="162" r="26" fill="#f4f7ff"/>
+          <g clip-path="url(#pulo-eye-r)"><g class="pupil">
+            <circle cx="182" cy="164" r="17" fill="url(#pulo-iris)"/><circle cx="181" cy="165" r="8" fill="#0c1118"/>
+            <circle cx="175" cy="157" r="4" fill="#fff"/><circle cx="187" cy="172" r="2" fill="#fff" opacity=".8"/>
+          </g></g>
         </g>
-        <path class="tear" d="M66 116 q-4 8 0 11 q4 -3 0 -11z" fill="#9bdcff"/>
-        <path class="mouth" d="M84 132 Q100 148 116 132" stroke="#10202a" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <ellipse class="cheek" cx="79" cy="194" rx="9" ry="6" fill="#ff8fa3" opacity=".3"/>
+        <ellipse class="cheek" cx="209" cy="194" rx="9" ry="6" fill="#ff8fa3" opacity=".3"/>
+        <path class="tear" d="M90 192 q-7 14 0 19 q7 -5 0 -19z" fill="#9bdcff"/>
+        <path class="mouth" d="M122 199 Q144 212 166 199" stroke="#f4f7ff" stroke-width="4.5" fill="none" stroke-linecap="round"/>
       </g>
     </svg>
   </template>
@@ -449,13 +487,13 @@
             <fieldset class="control">
               <legend class="control-label">Buddy-Farbe</legend>
               <div class="swatches" id="swatches">
-                <label class="swatch"><input type="radio" name="color" value="#14a3a8" checked><span style="--c:#14a3a8"></span><span class="sr-only">Türkis</span></label>
-                <label class="swatch"><input type="radio" name="color" value="#3b82f6"><span style="--c:#3b82f6"></span><span class="sr-only">Blau</span></label>
+                <label class="swatch"><input type="radio" name="color" value="#4f7ff0" checked><span style="--c:#4f7ff0"></span><span class="sr-only">Blau</span></label>
+                <label class="swatch"><input type="radio" name="color" value="#14a3a8"><span style="--c:#14a3a8"></span><span class="sr-only">Türkis</span></label>
                 <label class="swatch"><input type="radio" name="color" value="#8b5cf6"><span style="--c:#8b5cf6"></span><span class="sr-only">Violett</span></label>
                 <label class="swatch"><input type="radio" name="color" value="#ec6a9c"><span style="--c:#ec6a9c"></span><span class="sr-only">Rosa</span></label>
                 <label class="swatch"><input type="radio" name="color" value="#f59e0b"><span style="--c:#f59e0b"></span><span class="sr-only">Orange</span></label>
                 <label class="swatch"><input type="radio" name="color" value="#22a55a"><span style="--c:#22a55a"></span><span class="sr-only">Grün</span></label>
-                <label class="custom-color"><input type="color" id="custom-color" value="#14a3a8">Eigene</label>
+                <label class="custom-color"><input type="color" id="custom-color" value="#4f7ff0">Eigene</label>
               </div>
             </fieldset>
             <div class="control">
@@ -610,10 +648,10 @@
 
     // ================= Buddy =================
     const MOUTHS = {
-      happy:   "M84 132 Q100 148 116 132",
-      worried: "M86 136 Q93 131 100 136 Q107 141 114 136",
-      sad:     "M84 140 Q100 126 116 140",
-      wow:     "M93 136 Q100 126 107 136 Q100 146 93 136"
+      happy:   "M122 199 Q144 212 166 199",
+      worried: "M124 204 Q134 198 144 204 Q154 210 164 204",
+      sad:     "M124 208 Q144 194 164 208",
+      wow:     "M134 204 Q144 190 154 204 Q144 218 134 204"
     };
     const LAMP = { ok: "var(--ok)", warn: "var(--warn)", bad: "var(--bad)" };
     const tpl = document.getElementById("buddy-tpl");
@@ -652,11 +690,11 @@
     // Augen folgen dem Zeiger
     function lookAt(b, x, y) {
       const r = b.svg.getBoundingClientRect();
-      const s = r.width / 200;
+      const s = r.width / 347; // viewBox "-29 0 347 347"
       b.pupils.forEach((p, i) => {
-        const ex = r.left + (i ? 122 : 78) * s, ey = r.top + 100 * s;
+        const ex = r.left + ((i ? 184 : 104) + 29) * s, ey = r.top + 162 * s;
         const dx = x - ex, dy = y - ey, d = Math.hypot(dx, dy) || 1;
-        const m = Math.min(5.5, d / 40);
+        const m = Math.min(8, d / 25);
         p.style.transform = `translate(${(dx / d) * m}px, ${(dy / d) * m * .9}px)`;
       });
     }
